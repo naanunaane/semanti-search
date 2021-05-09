@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, Response, render_template
 import requests
 import json
 
@@ -17,14 +17,35 @@ def name_of_app(name):
            'With our service, you can search for relevant answers in stackoverflow ' \
            'and github code modules just by using natural language' % name
 
-@app.route('/ques/<int:num>')
+@app.route('/search/')
 # '/ques' URL is bound with search_stack_overflow() function
 # function accepts the query string and returns top num questions
 # by relevance using the stackoverflow API
-def search_stack_overflow(num):
+def search_landing_page():
+    return render_template(
+        '/searchLandingView/landingPage2Cards.html',
+        title="Jinja Demo Site",
+        description="Smarter page templates with Flask & Jinja."
+    )
+
+
+
+
+
+
+
+@app.route('/search/<string:query>/<string:lang>')
+# '/ques' URL is bound with search_stack_overflow() function
+# function accepts the query string and returns top num questions
+# by relevance using the stackoverflow API
+def search_stack_overflow(query,lang):
     # first getting the argument 'query' from the GET request
     # which is the natural language query string
-    query = request.args.get('query')
+    # query = request.args.get('query')
+
+    print(query)
+    print(lang)
+
     # getting the response from the stackoverflow API
     # ques_data = requests.get('https://api.stackexchange.com/2.2/search/advanced?pagesize={}&order=desc&sort=relevance&q={}&site=stackoverflow&filter=!9Qz3Xf4W6'.format(num, query))
 

@@ -1,0 +1,1009 @@
+<script src="https://kit.fontawesome.com/deb5cf4bc2.js" crossorigin="anonymous"></script>
+
+
+<script type="text/javascript">
+    function search(){
+
+
+        // var searchUrl = 'https://api.stackexchange.com/2.2/search?pagesize=3&order=desc&sort=relevance&intitle=' + query.value + '&site=stackoverflow&filter=!9Qz3Xr)ML';
+        // var searchUrl = 'https://api.stackexchange.com/2.2/search/advanced?pagesize=2&order=desc&sort=relevance&q='+ query.value +'&site=stackoverflow&filter=!9Qz3Xf4W6';
+        // searchUrl = 'https://pokeapi.co/api/v2/pokemon/ditto/';
+
+
+        var alpIndexer = ['one', 'two', 'three', 'four', 'five'];
+        var searchUrl = 'http://localhost:5000/search/'+query.value+'/python';
+        fetch(searchUrl).then(response => {
+          return response.json();
+        }).then(data => {
+          console.log(data);
+          questionIds = Object.keys(data.items)
+          for(i=0; i < questionIds.length; i++ )
+          {
+              q = questionIds[i]
+
+              createdDate = new Date(data.items[q].creation_date * 1000)
+    
+              lastActivityDate = new Date(data.items[q].last_activity_date * 1000)
+    
+              document.getElementsByClassName('stackOverFlow createdDate '+ (i+1))[0].innerHTML = ""
+    
+              document.getElementsByClassName('stackOverFlow createdDate '+ (i+1))[0].innerHTML = "created on: " + createdDate.getDate() + '-' + createdDate.getMonth() + '-' + createdDate.getFullYear()
+    
+              document.getElementsByClassName('stackOverFlow lastActivityDate '+ (i+1))[0].innerHTML=""
+    
+              document.getElementsByClassName('stackOverFlow lastActivityDate '+ (i+1))[0].innerHTML = "last activity on: " + lastActivityDate.getDate() + '-' + lastActivityDate.getMonth() + '-' + lastActivityDate.getFullYear()
+    
+              document.getElementsByClassName('ViewCount Number '+ (i+1))[0].innerHTML = ""
+              
+              document.getElementsByClassName('ViewCount Number '+ (i+1))[0].innerHTML = data.items[q].view_count
+    
+              document.getElementsByClassName('ViewCount Text '+ (i+1))[0].innerHTML=""
+              
+              document.getElementsByClassName('ViewCount Text '+ (i+1))[0].innerHTML = "Views"
+
+              document.getElementsByClassName('stackOverFlow AnswerTagExtenstion '+ alpIndexer[i])[0].innerHTML = "Answers ("+data.items[q].answer_count+")"
+    
+              var questionTitleComponent = document.createElement('div')
+    
+              questionTitleComponent.setAttribute('class', 'stackOverFlow title '+String(q));
+    
+              questionTitleComponent.setAttribute('id', 'stackOverFlowTitle'+String(i+1));
+    
+              questionTitleComponent.innerHTML = data.items[q].title
+
+              var questionBodyComponent = document.createElement('div')
+
+              questionBodyComponent.setAttribute('class', 'stackOverFlow body '+String(q));
+
+              questionBodyComponent.setAttribute('id', 'stackOverFlowBody'+String(i+1));
+
+              var questionContentComponent = document.createElement('div')
+
+              questionContentComponent.setAttribute('class', 'stackOverFlow content '+String(q));
+
+              questionContentComponent.setAttribute('id', 'stackOverFlowcontent'+String(i+1));              
+
+              questionContentComponent.innerHTML = "Description: <br>" + data.items[q].body
+              
+              questionBodyComponent.appendChild(questionContentComponent)
+    
+              if (!!document.getElementById('stackOverFlowTitle'+(i+1))){
+    
+                document.getElementById('stackOverFlowCard'+String(i+1)).removeChild(document.getElementById('stackOverFlowTitle'+String(i+1)));
+    
+              }
+    
+              if (!!document.getElementById('stackOverFlowDetailer'+(i+1))){
+    
+                document.getElementById('stackOverFlowCard'+String(i+1)).removeChild(document.getElementById('stackOverFlowDetailer'+String(i+1)));
+    
+              }
+
+    
+              document.getElementById('stackOverFlowCard'+String(i+1)).appendChild(questionTitleComponent)
+
+              var fullDetailerComponent = document.createElement('div')
+
+              fullDetailerComponent.setAttribute('class', 'stackOverFlow FullDetailer '+String(i+1));
+
+              fullDetailerComponent.setAttribute('id', 'stackOverFlowDetailer'+String(i+1));
+      
+              document.getElementById('stackOverFlowCard'+String(i+1)).appendChild(fullDetailerComponent)
+
+              document.getElementById('stackOverFlowDetailer'+String(i+1)).appendChild(questionBodyComponent)
+
+              // Filling the tags
+
+              existingTagsForQuestion = document.getElementsByClassName("stackOverFlow TagsData "+(i+1))[0]
+
+              for(k=0; k< existingTagsForQuestion.childElementCount; k++){
+                  existingTagsForQuestion.removeChild(existingTagsForQuestion.lastChild)
+              }
+
+              for (j=0; j<data.items[q].tags.length; j++){
+
+                var tagComponents = document.createElement('div');
+
+                tagComponents.setAttribute('class', 'stackOverFlow Tag '+String(i+1));
+
+                tagComponents.innerHTML = data.items[q].tags[j];
+
+                document.getElementsByClassName("stackOverFlow TagsData "+(i+1))[0].appendChild(tagComponents)
+
+              }
+
+
+
+
+
+              // Check for accepted answer
+
+              if("accepted_id" in data.items[q]){
+                document.getElementsByClassName('stackOverFlow acceptedAnswer '+ alpIndexer[i])[0].style.display = 'block'
+              }
+
+              getAnswers(q, i, data.items[q].answers)
+    
+          }
+        }).catch(err => {
+          console.log(err)
+        });
+    }
+    
+    function getAnswers(questionID, index, data){
+    
+   
+            console.log(data)
+
+            // Create a div for the backside of the card. Kind of a parent element for the whole behind the scenes of the card
+            var answerBodyComponent = document.createElement('div')
+            
+            answerBodyComponent.setAttribute('class', 'stackOverFlow Answer body '+String(questionID));
+    
+            answerBodyComponent.setAttribute('id', 'stackOverFlowAnswerBody'+String(index+1));
+             
+            for(itemNumber=0; itemNumber<data.length; itemNumber++){
+
+
+                //Create a div for the answer content. This will be behind the card. Left to this will be the navigation and votes pane
+
+                var answerBodyContentComponent = document.createElement('div')
+
+                answerBodyContentComponent.setAttribute('class', 'stackOverFlow Answerbody content '+String(questionID) + String(data[itemNumber].answer_id));
+        
+                answerBodyContentComponent.setAttribute('id', 'stackOverFlowAnswersBodyscontent'+String(index+1)+String(itemNumber+1));
+
+                // Create the navigation and votes pane
+                var votesandNavigationComponent = document.createElement('div')
+
+                votesandNavigationComponent.setAttribute('class', 'stackOverFlow Answerbody VotesAndNavigation '+String(questionID)+ String(data[itemNumber].answer_id));
+
+                votesandNavigationComponent.setAttribute('id', 'stackOverFlowAnswersBodyVotesAndNavigation'+String(index+1)+String(itemNumber+1));            
+
+                // Create the votes pane
+                var votesComponent = document.createElement('div')
+
+                votesComponent.setAttribute('class', 'stackOverFlow Answerbody votes '+String(questionID) + String(data[itemNumber].answer_id));
+
+                votesComponent.setAttribute('id', 'stackOverFlowAnswersBodyVotes'+String(index+1)+String(itemNumber+1));
+
+                votesComponent.innerHTML = data[itemNumber].score + "<br>Votes"
+
+                // Create the acceptance component
+                var acceptanceComponent = document.createElement('div')
+
+                acceptanceComponent.setAttribute('class', 'stackOverFlow Answerbody acceptance fa fa-check '+String(questionID) + String(data[itemNumber].answer_id));
+
+                acceptanceComponent.setAttribute('id', 'stackOverFlowAnswersBodyacceptance'+String(index+1)+String(itemNumber+1));     
+                
+                acceptanceComponent.setAttribute('aria-hidden', 'true')
+
+                // Check for accepted answer
+
+                if (data[itemNumber].is_accepted){
+                    acceptanceComponent.classList.add('accepted');
+                    answerBodyContentComponent.classList.add('displayed')
+                    votesandNavigationComponent.classList.add('displayed')
+                    // answerBodyContentComponent.style.display='block';
+                    // votesComponent.style.display='block';
+                    // votesandNavigationComponent.style.display='block';
+
+                }
+
+        
+                // if (data.items[0].is_accepted){
+                //     answerBodyContentComponent.style.backgroundColor = '#EDFFED';
+                // }
+
+                answerBodyContentComponent.innerHTML = "<br> " + data[itemNumber].body
+        
+                console.log(answerBodyContentComponent)
+
+                votesandNavigationComponent.appendChild(votesComponent)
+                votesandNavigationComponent.appendChild(acceptanceComponent)
+
+                // votesandNavigationComponent.appendChild(navigationComponent)
+                answerBodyComponent.appendChild(votesandNavigationComponent)
+                answerBodyComponent.appendChild(answerBodyContentComponent)
+
+            }
+
+            console.log(answerBodyComponent)
+
+
+            document.getElementById('stackOverFlowDetailer'+String(index+1)).appendChild(answerBodyComponent)
+
+
+            // // Create the navigation pane
+            var navigationComponent = document.createElement('div')
+
+            navigationComponent.setAttribute('class', 'stackOverFlow Answerbody navigation '+String(questionID));
+
+            navigationComponent.setAttribute('id', 'stackOverFlowAnswersBodynavigation'+String(index+1));
+
+            // // Create the up arrow component
+            var leftArrowComponent = document.createElement('div')
+
+            leftArrowComponent.setAttribute('class', 'stackOverFlow Answerbody leftArrow fa fa-angle-left '+String(questionID));
+
+            leftArrowComponent.setAttribute('id', 'stackOverFlowAnswersBodyLeftArrow'+String(index+1));    
+            
+            leftArrowComponent.setAttribute('aria-hidden', 'true') 
+
+            var leftArrowTextComponent = document.createElement('div')
+
+            leftArrowTextComponent.setAttribute('class', 'stackOverFlow Answerbody leftArrowText '+String(questionID));
+
+            leftArrowTextComponent.setAttribute('id', 'stackOverFlowAnswersBodyLeftArrowText'+String(index+1));                
+
+            leftArrowTextComponent.innerHTML = "Previous Answer"
+
+            leftArrowTextComponent.setAttribute('onclick', 'moveToPreviousAnswer(this)');
+            
+            // // Create the down arrow component
+            var rightArrowComponent = document.createElement('div')
+
+            rightArrowComponent.setAttribute('class', 'stackOverFlow Answerbody rightArrow fa fa-angle-right '+String(questionID));
+
+            rightArrowComponent.setAttribute('id', 'stackOverFlowAnswersBodyrightArrow'+String(index+1));   
+            
+            rightArrowComponent.setAttribute('aria-hidden', 'true') 
+
+            var rightArrowTextComponent = document.createElement('div')
+
+            rightArrowTextComponent.setAttribute('class', 'stackOverFlow Answerbody rightArrowText '+String(questionID));
+
+            rightArrowTextComponent.setAttribute('id', 'stackOverFlowAnswersBodyrightArrowText'+String(index+1));
+            
+            rightArrowTextComponent.setAttribute('onclick', 'moveToNextAnswer(this)');
+
+            rightArrowTextComponent.innerHTML = "Next Answer"
+
+            navigationComponent.appendChild(leftArrowComponent)
+            navigationComponent.appendChild(leftArrowTextComponent)
+            navigationComponent.appendChild(rightArrowTextComponent)
+            navigationComponent.appendChild(rightArrowComponent)
+            document.getElementById('stackOverFlowCard'+String(index+1)).appendChild(navigationComponent)
+
+        console.log('I am')
+    
+    }
+
+
+    function showQuestion(clickedClass){
+
+        if(clickedClass.classList.contains('one')){
+            document.getElementById('stackOverFlowAnswersBodynavigation1').style.display = 'none';
+            existingDetailerClassList = document.getElementsByClassName('stackOverFlow FullDetailer 1')[0].classList
+            if(existingDetailerClassList.contains('active')){
+                existingDetailerClassList.remove('active')
+                document.getElementsByClassName('stackOverFlow QuestionTagExtenstion one')[0].classList.add('clicked')
+                document.getElementsByClassName('stackOverFlow AnswerTagExtenstion one')[0].classList.remove('clicked')
+            }
+            else{
+                console.log('Already on Question')
+            }
+        }
+        if(clickedClass.classList.contains('two')){
+            document.getElementById('stackOverFlowAnswersBodynavigation2').style.display = 'none';
+            existingDetailerClassList = document.getElementsByClassName('stackOverFlow FullDetailer 2')[0].classList
+            if(existingDetailerClassList.contains('active')){
+                existingDetailerClassList.remove('active')
+                document.getElementsByClassName('stackOverFlow QuestionTagExtenstion two')[0].classList.add('clicked')
+                document.getElementsByClassName('stackOverFlow AnswerTagExtenstion two')[0].classList.remove('clicked')
+            }
+            else{
+                console.log('Already on Question')
+            }
+        }
+    }
+
+    function showAnswers(clickedClass){
+        if(clickedClass.classList.contains('one')){
+            document.getElementById('stackOverFlowAnswersBodynavigation1').style.display = 'flex';
+            existingDetailerClassList = document.getElementsByClassName('stackOverFlow FullDetailer 1')[0].classList
+            if(existingDetailerClassList.contains('active')){
+                console.log('Already on Answers')
+            }
+            else{
+                existingDetailerClassList.add('active')
+                document.getElementsByClassName('stackOverFlow QuestionTagExtenstion one')[0].classList.remove('clicked')
+                document.getElementsByClassName('stackOverFlow AnswerTagExtenstion one')[0].classList.add('clicked')
+            }
+        }
+        if(clickedClass.classList.contains('two')){
+            document.getElementById('stackOverFlowAnswersBodynavigation2').style.display = 'flex';
+            existingDetailerClassList = document.getElementsByClassName('stackOverFlow FullDetailer 2')[0].classList
+            if(existingDetailerClassList.contains('active')){
+                console.log('Already on Answers')
+            }
+            else{
+                existingDetailerClassList.add('active')
+                document.getElementsByClassName('stackOverFlow QuestionTagExtenstion two')[0].classList.remove('clicked')
+                document.getElementsByClassName('stackOverFlow AnswerTagExtenstion two')[0].classList.add('clicked')
+            }
+        }
+    }
+
+
+
+    function moveToNextAnswer(clickedElement){
+        console.log(clickedElement)
+        answerCardParent = clickedElement.parentElement.parentElement.children[2].children[1]
+        numberOfAnswerCards = answerCardParent.childElementCount
+        for(i=0; i<numberOfAnswerCards; i++){
+            if(answerCardParent.children[i].classList.contains('displayed')){
+                answerIndex = Number(answerCardParent.children[i].id.slice(-2))
+                break;
+            }
+        }
+        document.getElementById('stackOverFlowAnswersBodyscontent'+String(answerIndex)).classList.remove('displayed')
+        document.getElementById('stackOverFlowAnswersBodyscontent'+String(answerIndex+1)).classList.add('displayed')
+        document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex)).classList.remove('displayed')
+        document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex+1)).classList.add('displayed')
+        // document.getElementById('stackOverFlowAnswersBodyscontent'+String(answerIndex)).removeAttribute('style');
+        // document.getElementById('stackOverFlowAnswersBodyscontent'+String(answerIndex+1)).style.display = 'block';
+        // document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex)).removeAttribute('style');
+        // document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex)).removeAttribute('style');
+        // document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex+1)).style.display = 'block';
+        document.getElementById('stackOverFlowAnswersBodyLeftArrowText'+String(answerIndex)[0]).style.display = 'block';
+        document.getElementById('stackOverFlowAnswersBodyLeftArrow'+String(answerIndex)[0]).style.display = 'block';
+        
+        if(Number(String(answerIndex+1)[1]) == 3){
+            document.getElementById('stackOverFlowAnswersBodyrightArrowText'+String(answerIndex)[0]).style.display = 'none';
+            document.getElementById('stackOverFlowAnswersBodyrightArrow'+String(answerIndex)[0]).style.display = 'none';
+        }
+    }
+
+    function moveToPreviousAnswer(clickedElement){
+        console.log(clickedElement)
+        console.log(clickedElement)
+        answerCardParent = clickedElement.parentElement.parentElement.children[2].children[1]
+        numberOfAnswerCards = answerCardParent.childElementCount
+        for(i=0; i<numberOfAnswerCards; i++){
+            if(answerCardParent.children[i].classList.contains('displayed')){
+                answerIndex = Number(answerCardParent.children[i].id.slice(-2))
+                break;
+            }
+        }
+        document.getElementById('stackOverFlowAnswersBodyscontent'+String(answerIndex)).classList.remove('displayed')
+        document.getElementById('stackOverFlowAnswersBodyscontent'+String(answerIndex-1)).classList.add('displayed')
+        document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex)).classList.remove('displayed')
+        document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex-1)).classList.add('displayed')     
+        document.getElementById('stackOverFlowAnswersBodyrightArrowText'+String(answerIndex)[0]).style.display = 'block';
+        document.getElementById('stackOverFlowAnswersBodyrightArrow'+String(answerIndex)[0]).style.display = 'block';   
+        // document.getElementById('stackOverFlowAnswersBodyscontent'+String(answerIndex)).removeAttribute('style');
+        // document.getElementById('stackOverFlowAnswersBodyscontent'+String(answerIndex)).removeAttribute('style');
+        // document.getElementById('stackOverFlowAnswersBodyscontent'+String(answerIndex-1)).style.display = 'block';
+        // document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex)).removeAttribute('style');
+        // document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex)).removeAttribute('style');
+        // document.getElementById('stackOverFlowAnswersBodyVotesAndNavigation'+String(answerIndex-1)).style.display = 'block';   
+        if(Number(String(answerIndex-1)[1]) == 1){
+            document.getElementById('stackOverFlowAnswersBodyLeftArrowText'+String(answerIndex)[0]).style.display = 'none';
+            document.getElementById('stackOverFlowAnswersBodyLeftArrow'+String(answerIndex)[0]).style.display = 'none';
+        }     
+    }
+    
+    </script>
+    <style>
+    
+        pre{
+            font-size: 13px;
+            font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
+            line-height: 1.30769231;
+            color: var(--highlight-color);
+            background-color: var(--highlight-bg);
+            border-radius: 5px;
+            margin: 0;
+            padding: 12px;
+            overflow: auto;
+            border: 1px solid rgb(227, 228, 230);
+            background-color: rgb(229, 230, 231);
+            width: 95%;
+        }
+    
+        /* code{
+            white-space:break-spaces;
+
+        } */
+    
+        input {
+        outline: none;
+        padding: 15px;
+    }
+        .searchHeader{
+            /* align-items: center; */
+            display: flex;
+            flex-direction: row;
+            margin-left: 30%;
+            margin-top: 2%;
+            height: 5%;
+        }
+    
+        .searchBox{
+            align-items: center;
+            border-radius: 20px;
+            border: 1px solid rgb(211, 219, 219);
+            margin-right: 2%;
+            width: 40%;
+            font-size: 16px;
+        }
+    
+    
+        #searchButton{
+            margin-top: 0.5%;
+            width: 4%;
+            height: 30%;
+            padding: 0.5%;
+            border-radius: 5px;
+            border: 0.5px solid rgb(211, 219, 219);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: pointer;
+    
+        }
+    
+        .stackOverFlowParent{
+            display: flex;
+            flex-direction: row;
+            width: auto;
+            height: 43vh;
+            margin-top: 5%;
+            margin-left: 2.5%;
+            min-width: 97.5%;
+        }
+        .stackOverFlowCard{
+            width: 45%;
+            height: 100%;
+            box-shadow: 0;
+            border: 0.5px solid rgba(255, 59, 59, 0.267);
+            transition: box-shadow 3s;
+            margin-right: 3%;
+            border-radius: 5px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0.5%;
+            overflow: hidden;
+            min-width: 25%;
+            /* perspective: 1000px; */
+        }
+        .stackOverFlowCard.Card:hover{
+            box-shadow: 0 0 10px #3a3939;
+        }
+    
+    
+        .stackOverFlowCard.headerDisplay{
+            width: 99%;
+            height: 13%;
+            display: flex;
+            flex-direction: row;
+            border: none;
+            border-bottom: 1px solid grey;
+        }
+    
+        .stackOverFlow.Logo{
+            width: 10%;
+            height: 100%;
+            border: none;
+            margin-right: 0%;
+            background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Stack_Overflow_icon.svg/768px-Stack_Overflow_icon.svg.png);
+            background-size: 60px 60px;
+            background-repeat: no-repeat;
+        }
+    
+        .stackOverFlow.metaData{
+            width: 25%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 2%;
+            border-right: 1px dashed black;
+            padding-right: 2%;
+        }
+
+
+        .stackOverFlow.TagsData{
+            margin-left: 2%;
+            width: 60%;
+            height: 100%;
+            display: inline-flex;
+            justify-content: space-evenly;
+        }
+
+        .stackOverFlow.Tag{
+            height: fit-content;
+            font-size: 13px;
+            background-color: #a6def985;
+            padding: 2%;
+            border-radius: 5px;
+            font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
+            width: fit-content;
+            margin-right: 2%;
+        }
+        
+
+        .stackOverFlow.DatesCard{
+            width: 100%;
+            height: 45%;
+            display: flex;
+            flex-direction: column;
+            font-style: italic;
+        }
+    
+    
+        .stackOverFlow.createdDate{
+            font-size: 12px;
+            text-align: right;
+            width: 100%;
+        }
+    
+        .stackOverFlow.lastActivityDate{
+            font-size: 12px;
+            text-align: right;
+            width: 100%;
+        }
+
+        .stackOverFlow.QuestionTagExtenstion.one{
+            background-color: orange;
+            height: 7%;
+            width: 1.2%;
+            margin-top: 1.5%;
+            position: absolute;
+            float: left;
+            left: 47.5%;
+            border: 1px solid orange;
+            border-left: none;
+            border-top-right-radius: 7px;
+            color: white;
+            text-orientation: sideways;
+            writing-mode: vertical-lr;
+            padding-top: 1.5%;
+            font-size: 18px;
+        }
+
+        .stackOverFlow.AnswerTagExtenstion.one{
+            background-color: green;
+            height: auto;
+            width: 1.2%;
+            margin-top: 6.7%;
+            position: absolute;
+            float: left;
+            left: 47.5%;
+            border: 1px solid green;
+            border-left: none;
+            border-top-right-radius: 7px;
+            color: white;
+            text-orientation: sideways;
+            writing-mode: vertical-lr;
+            padding-top: 1.5%;
+            font-size: 18px;
+        }        
+        .stackOverFlow.QuestionTagExtenstion.two{
+            background-color: orange;
+            height: 7%;
+            width: 1.2%;
+            margin-top: 1.5%;
+            position: absolute;
+            float: left;
+            left: 94.9%;
+            border: 1px solid orange;
+            border-left: none;
+            border-top-right-radius: 7px;
+            color: white;
+            text-orientation: sideways;
+            writing-mode: vertical-lr;
+            padding-top: 1.5%;
+            font-size: 18px;
+        }
+    
+        .stackOverFlow.AnswerTagExtenstion.two{
+            background-color: green;
+            height: auto;
+            width: 1.2%;
+            margin-top: 6.7%;
+            position: absolute;
+            float: left;
+            left: 94.9%;
+            border: 1px solid green;
+            border-left: none;
+            border-top-right-radius: 7px;
+            color: white;
+            text-orientation: sideways;
+            writing-mode: vertical-lr;
+            padding-top: 1.5%;
+            font-size: 18px;
+        }   
+
+
+        .stackOverFlow.QuestionTagExtenstion.clicked, .stackOverFlow.AnswerTagExtenstion.clicked{
+            width: 1.5% !important;
+        }
+ 
+
+
+
+
+
+        .stackOverFlow.acceptedAnswer.one{
+            background-color: whitesmoke;
+            height: 30px;
+            width: 30px;
+            margin-top: -1.5%;
+            position: absolute;
+            float: left;
+            left: 46.6%;
+            display: none;
+            color: green;        
+            font-size: 2em;
+        }
+    
+        .stackOverFlow.acceptedAnswer.two{
+            background-color: whitesmoke;
+            height: 30px;
+            width: 30px;
+            margin-top: -1.5%;
+            position: absolute;
+            float: left;
+            left: 94%;
+            display: none;
+            color: green;
+            font-size: 2em;
+        }
+    
+
+    
+        .stackOverFlow.ViewsandAnswers{
+            width: 100%;
+            height: 45%;
+            display: flex;
+            flex-direction: row;
+            padding-bottom: 2%;
+        }
+    
+    
+        .stackOverFlow.ViewCount{
+            display: flex;
+            flex-direction: row;
+            margin-top: 4%;
+            /* margin-right: 3%; */
+            width: 100%;
+            /* border-right: 0.5px solid gray; */
+            height: 100%;
+        }
+        .stackOverFlow.ViewCount .Number{
+            color: green;
+            font-size: 18px;
+            border: none;
+            width: 74%;
+            text-align: right;
+        }
+        .stackOverFlow.ViewCount .Text{
+            color: black;
+            font-size: 14px;
+            border: none;
+            margin: 2%;
+            width: 25%;
+            /* margin-right: 5%; */
+            text-align: right;
+        }
+    
+        .stackOverFlow.title {
+            margin-top: 2%;
+            font-size: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    
+        .stackOverFlow.body{
+            margin-top: 2%;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-y: auto;
+            /* overflow-x: hidden; */
+            height: 68%;
+            margin-bottom: 2%;
+            letter-spacing: 0.1px;
+        }
+    
+        .stackOverFlow.body::-webkit-scrollbar {
+            display: none;
+         }
+
+         .stackOverFlow.Answerbody.content::-webkit-scrollbar {
+             display: none;
+         }  
+
+        .stackOverFlow.Answer.body, .stackOverFlow.body {
+            position: absolute;
+            margin-top: 2%;
+            height: 68%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            overflow-y: auto;
+            transition: transform 1s;
+            background-color: white;
+            width: 96%;
+            margin-bottom: 0%;
+            height: 94%;
+         }
+
+        .stackOverFlow.Answer.body{
+            color: black;
+            transform: rotateY(180deg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-y: auto;
+            padding-left: 1%;
+            width: 95%;
+            background-color: whitesmoke;
+            border-radius: 5px;
+            letter-spacing: 0.1px;
+            display: flex;
+            flex-direction: row;
+
+            /* height: 100%; */
+            /* width: 100%; */
+        }
+        .stackOverFlow.Answerbody.content{
+            color: black;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-y: auto;
+            padding-left: 1%;
+            width: 87%;
+            background-color: whitesmoke;
+            border-radius: 5px;
+            letter-spacing: 0.1px;
+            display: none;
+        }
+
+        .stackOverFlow.Answerbody.content.displayed{
+            color: black;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-y: auto;
+            padding-left: 1%;
+            width: 87%;
+            background-color: whitesmoke;
+            border-radius: 5px;
+            letter-spacing: 0.1px;
+            display: block;
+        }
+
+        .stackOverFlow.Answerbody.VotesAndNavigation{
+            width: 10%;
+            background-color: whitesmoke;
+            height: 100%;
+            display: none;
+        }
+
+        .stackOverFlow.Answerbody.VotesAndNavigation.displayed{
+            width: 10%;
+            background-color: whitesmoke;
+            height: 100%;
+            display: block;
+        }
+
+        .stackOverFlow.Answerbody.votes{        
+            width: 100%;
+            background-color: whitesmoke;
+            height: 20%;
+            font-size: 22px;
+            text-align: center;
+            padding-top: 25%;
+            color: #032158;
+        }
+        .stackOverFlow.Answerbody.navigation{        
+            width: 100%;
+            /* background-color: yellow; */
+            height: 5%;
+            margin-top: 1%;
+            display: flex;
+            flex-direction: row;
+            display: none;
+            position: relative;
+            /* color: #032158;        
+            font-size: 2em;
+            text-align: center; */
+        }
+
+        .stackOverFlow.Answerbody.leftArrowText{
+            width: 48%;
+            text-align: left;
+            display: none;
+        }
+
+        .stackOverFlow.Answerbody.rightArrowText{
+            width: 48%;
+            text-align: right;
+            position: absolute;
+            float: right;
+            right: 2%;
+        }
+
+        .stackOverFlow.Answerbody.rightArrow{
+            width: 2%;
+            /* background-color: yellow; */
+            height: 10%;
+            /* margin-top: 100%; */
+            color: #032158;      
+            text-align: right;  
+            position: absolute;
+            float: right;
+            right: 0%;
+            font-size: 16px;
+        }
+        .stackOverFlow.Answerbody.leftArrow{
+            width: 2%;
+            /* background-color: yellow; */
+            height: 10%;
+            /* margin-top: 100%; */
+            color: #032158;        
+            font-size: 16px;
+            text-align: left;
+            display: none;
+        }
+
+        .stackOverFlow.Answerbody.acceptance{
+            color: transparent;
+            font-size: 2em;
+            text-align: center;
+            width: 100%;
+            margin-top: 7%;
+        }
+
+        .stackOverFlow.Answerbody.acceptance.accepted{
+            color: green;
+            font-size: 2em;
+            text-align: center;
+            width: 100%;
+            margin-top: 7%;
+        }
+
+        .stackOverFlow.FullDetailer.active {
+            transform: rotateY(180deg)
+        }
+
+        .stackOverFlow.FullDetailer{
+            height: 70%;
+            width: 96%;
+            padding-right: 2%;
+            padding-left: 2%;
+            transition: transform 1s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        /* .stackOverFlow.Tag.one{
+            width: fit-content;
+            height: 30%;
+            font-size: 14px;
+            background-color: #a6def985;
+            padding: 7%;
+            border-radius: 5px;
+        } */
+        
+    </style>
+    
+    
+    <body>
+        <div class = "searchHeader">
+            <input type='text' class='searchBox' id='query' name='query' value=''>
+    
+            <div id = "searchButton" onclick="search()">Search</div>
+        </div>
+    
+        <div class='stackOverFlowParent'>
+            <div class = 'stackOverFlowCard Card 1' id = "stackOverFlowCard1">
+                <div class = 'stackOverFlowCard headerDisplay'>
+    
+    
+                    <div class= "stackOverFlow Logo 1">
+                        <!-- <i class="fa fa-check-circle" aria-hidden="true"></i> -->
+                    </div>
+    
+                    <div class="stackOverFlow metaData 1">
+                    
+                        <div class = "stackOverFlow DatesCard 1"> 
+                            <div class="stackOverFlow createdDate 1">
+                            </div>
+                            <div class="stackOverFlow lastActivityDate 1">
+                            </div>
+    
+    
+                        </div>
+    
+                        <div class = "stackOverFlow ViewsandAnswers">
+                            <div class= "stackOverFlow ViewCount 1">
+                                <div class= "ViewCount Number 1">
+        
+                                </div>
+                                <div class = "ViewCount Text 1">
+                                    
+                                </div>
+                            </div>
+        
+                        </div>
+                    </div>
+                    <div class="stackOverFlow TagsData 1">
+                        <!-- <div class="stackOverFlow Tag one">
+                            Hellooooo
+                        </div>
+                        <div class="stackOverFlow Tag 2">
+                            Helllllo
+                        </div>
+                        <div class="stackOverFlow Tag 3">
+                            Apache hello
+                        </div>
+                        <div class="stackOverFlow Tag 4">
+                            SuperGood
+                        </div>
+                        <div class="stackOverFlow Tag 5">
+                            SeeMe?
+                        </div> -->
+
+                    </div>
+                    <div class="stackOverFlow acceptedAnswer one fa fa-check-circle " aria-hidden="true">
+    
+                    </div>
+                    <div class="stackOverFlow QuestionTagExtenstion one clicked" onclick="showQuestion(this)">
+                        Question    
+                    </div>
+                    <div class="stackOverFlow AnswerTagExtenstion one" onclick="showAnswers(this)">
+                        Answers    
+                    </div>
+                </div>
+                <!-- <div class="stackOverFlow FullDetailer 1" id = "stackOverFlowDetailer1">
+
+                </div> -->
+            </div>
+    
+    
+    
+    
+    
+    
+            <div class = 'stackOverFlowCard Card 2' id = "stackOverFlowCard2">
+                <div class = 'stackOverFlowCard headerDisplay'>
+    
+    
+                    <div class= "stackOverFlow Logo 2">
+                    </div>
+    
+                    <div class="stackOverFlow metaData 2">
+                    
+                        <div class = "stackOverFlow DatesCard 2">
+                            <div class="stackOverFlow createdDate 2">
+                            </div>
+                            <div class="stackOverFlow lastActivityDate 2">
+                            </div>
+    
+                        </div>
+    
+                        <div class = "stackOverFlow ViewsandAnswers">
+                            <div class= "stackOverFlow ViewCount 2">
+                                <div class= "ViewCount Number 2">
+        
+                                </div>
+                                <div class = "ViewCount Text 2">
+                                    
+                                </div>
+                            </div>
+        
+                        </div>
+                    </div>
+                    <div class="stackOverFlow TagsData 2">
+
+                    </div>
+                    <div class="stackOverFlow acceptedAnswer two fa fa-check-circle " aria-hidden="true">
+    
+                    </div>
+                    <div class="stackOverFlow QuestionTagExtenstion two clicked" onclick="showQuestion(this)">
+                        Question
+                    </div>
+                    <div class="stackOverFlow AnswerTagExtenstion two" onclick="showAnswers(this)">
+                        Answers
+                    </div>
+                </div>
+                <!-- <div class="stackOverFlow FullDetailer 2" id = "stackOverFlowDetailer2">
+
+                </div> -->
+            </div>
+        </div>
+    
+    </body>
+    
