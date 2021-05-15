@@ -1,0 +1,21 @@
+{
+  "queryID": 15678999890, 
+  "model1" : [],
+  "model2" : [],
+  "model3" : [
+    {
+     "id": 1234, 
+     "codelink": "https://github.com/rosenbrockc/acorn/blob/9a44d1a1ad8bfc2c54a6b56d9efe54433a797820/acorn/ipython.py#L201-L256",
+     "funcName": "ScalableBloomFilter.fromfile",
+     "docString": "Serialize this ScalableBloomFilter into the file - object f",
+     "score": 2288.97
+    },
+   {
+     "id": 1235,
+     "codelink": "https://github.com/EmbodiedCognition/py-c3d/blob/391493d9cb4c6b4aaeee4de2930685e3a67f5845/c3d.py#L962-L989",
+     "funcName": "Writer._write_frames",
+     "docString": "Write metadata to a file handle",
+     "score": 78.10
+    }
+]
+}

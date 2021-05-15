@@ -1,0 +1,1259 @@
+<script src="https://kit.fontawesome.com/deb5cf4bc2.js" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.61.0/codemirror.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.32.0/codemirror.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.61.0/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.61.0/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.61.0/addon/scroll/simplescrollbars.min.css"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.61.0/addon/scroll/simplescrollbars.min.js"></script>
+
+
+
+
+
+
+<script type="text/javascript">
+    var chosenLanguage = 'Python'
+    var pythonImgSrc = 'https://banner2.cleanpng.com/20180506/ile/kisspng-python-programming-language-computer-programming-5aefaba25ef4a4.302516281525656482389.jpg'
+    var JavaScriptImgSrc = 'https://mpng.subpng.com/20190627/ttx/kisspng-javascript-computer-icons-scalable-vector-graphics-list-of-javascript-enhancements-fandom-developers-5d145895b06253.7824611015616144857225.jpg'
+    var GoImgSrc = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1200px-Go_Logo_Blue.svg.png'
+    var firstDisplayCardID = 1
+    var secondDisplayCardID = 2
+    var alpIndexer = ['one', 'two', 'three', 'four', 'five', 'six'];
+    var movingFactor = 2
+    var searchResponse = {};
+    var modelResponse = {};
+    var semanticsNeeded = false;
+    var maxNumberOfCards = 6;
+    var listOfModels = []
+    var chosenModelID = 0
+    var numberOfModels = 1
+
+    function enableSemantics(){
+        this.semanticsNeeded = true;
+    }
+
+    function setLanguage(lang)
+    {
+        this.chosenLanguage = lang
+        editableImgLoc = document.getElementsByClassName('ChosenLanguageFilterLogo')[0]
+        document.getElementsByClassName('LanguageFilterLogo')[0].style.marginTop='3%'
+        document.getElementsByClassName('dropbtn')[0].innerHTML = "Language Filter :"
+        if(lang == 'Python'){
+            editableImgLoc.setAttribute('src', this.pythonImgSrc)
+            editableImgLoc.classList.remove('Go')
+        }
+        else if(lang == 'Javascript'){
+            editableImgLoc.setAttribute('src', this.JavaScriptImgSrc)
+            editableImgLoc.classList.remove('Go')
+        }
+        else if(lang == 'Go'){
+            editableImgLoc.setAttribute('src', this.GoImgSrc)
+            editableImgLoc.classList.toggle('Go')
+        }
+        editableImgLoc.style.display='block';
+
+    }
+
+    function passParams(){
+        window.location.href = "http://localhost:5000/search/?querystring="+query.value+'&lang='+this.chosenLanguage+'&semantics='+this.semanticsNeeded;
+        // location.href = 
+    }
+    
+
+    </script>
+    <style>
+
+        body{
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .semantiCatLogo{
+            height: 11%;
+            position: absolute;
+            float: right;
+            right: 2%;
+            top: 1%;
+            }
+
+        .codeModuleMeta.CodeSpecifics{
+            display: flex;
+            flex-direction: column;
+            font-size: 16px;
+            font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
+            height: 90%;
+            width: 30%;
+            border-right: 1px dashed black;
+        }
+
+        .codeModuleMeta.CodeSpecifics.URL{
+            height: 45%;
+            margin-top: 1.5%;
+            margin-left: 4%;
+            width: 100%;
+            border-right: none;
+        }
+        .codeModuleMeta.CodeSpecifics.FunctionName{
+            height: 45%;
+            margin-top: 1.5%;
+            margin-left: 4%;
+            border-right: none;
+            width: 100%;
+        }
+
+        .codeModuleMeta.CodeSpecifics.FunctionDescription{
+            height: 100%;
+            /* margin-top: 1.5%; */
+            margin-left: 1%;
+            font-size: 13px;
+            border-right: none;
+            width: 60%;
+        }
+
+        .codeModuleMeta.CodeSpecifics.FunctionMatch{
+            font-size: 20px;
+            color: green;
+            width: 5%;
+            height: 100%;
+            border-right: none;
+            position: absolute;
+            float: right;
+            right: 2%;
+        }
+    
+        pre{
+            font-size: 13px;
+            font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
+            line-height: 1.30769231;
+            color: var(--highlight-color);
+            background-color: var(--highlight-bg);
+            border-radius: 5px;
+            margin: 0;
+            padding: 12px;
+            overflow: auto;
+            border: 1px solid rgb(227, 228, 230);
+            background-color: rgb(229, 230, 231);
+            width: 95%;
+        }
+    
+        /* code{
+            white-space:break-spaces;
+
+        } */
+    
+        input {
+        outline: none;
+        padding: 15px;
+    }
+        .searchHeader{
+            /* align-items: center; */
+            display: flex;
+            flex-direction: row;
+            margin-left: 35%;
+            margin-top: 21%;
+            height: 5%;
+        }
+    
+        .searchBox{
+            align-items: center;
+            border-radius: 20px;
+            border: 1px solid rgb(211, 219, 219);
+            /* margin-right: 2%; */
+            width: 40%;
+            font-size: 16px;
+            margin-left: 2%;
+        }
+    
+    
+        #searchButton{
+            padding: 0.5%;
+            border-radius: 5px;
+            font-size: 1.5em;
+            /* border: 0.5px solid rgb(211, 219, 219); */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            cursor: pointer;
+            margin-top: 0.2%;
+    
+        }
+    
+        .stackOverFlowParent{
+            display: flex;
+            flex-direction: row;
+            width: auto;
+            height: 43vh;
+            margin-top: 2%;
+            margin-left: 1.5%;
+            min-width: 97.5%;
+        }
+        .stackOverFlowParent.minimized{
+            height: 15.5vh !important;
+        }
+        .stackOverFlowCard{
+            width: 45%;
+            height: 100%;
+            box-shadow: 0;
+            border: 0.5px solid rgba(255, 59, 59, 0.267);
+            transition: box-shadow 3s;
+            margin-right: 3%;
+            border-radius: 5px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 0.5%;
+            overflow: hidden;
+            min-width: 25%;
+            /* perspective: 1000px; */
+        }
+        .stackOverFlowCard.Card:hover{
+            box-shadow: 0 0 10px #3a3939;
+        }
+    
+    
+        .stackOverFlowCard.headerDisplay{
+            width: 99%;
+            height: auto;
+            min-height: 8%;
+            display: flex;
+            flex-direction: row;
+            padding: 0%;
+            padding-bottom: 1.5%;
+            /* position: relative; */
+            border: none;
+            border-bottom: 1px solid grey;
+        }
+    
+        .stackOverFlow.Logo{
+            width: 6%;
+            height: auto;
+            min-height: 5%;
+            border: none;
+            margin-right: 0%;
+            background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/Stack_Overflow_icon.svg/768px-Stack_Overflow_icon.svg.png);
+            background-size: 45px 45px;
+            background-repeat: no-repeat;
+            z-index: 1000;
+            position: absolute;
+        }
+
+        .nothingHereScreenParent{
+                width: 102%;
+                height: 148%;
+                border: none;
+                position: absolute;
+                margin-right: 0%;
+                left: -1%;
+                vertical-align: middle;
+                top: -19%;
+                text-align: center;
+                font-size: 20px;
+                font-family: monospace;
+                /* z-index: 100000000; */
+                background-color: #f5f5f5e0;
+        }
+
+        .nothingHereScreen{
+            position: absolute;
+            top: 47%;
+            left: 23%;
+        }
+
+        .nothingHereScreenParent.Github{
+            width: 90.5%;
+            height: 115%;
+            border: none;
+            position: absolute;
+            margin-right: 0%;
+            left: 4.5%;
+            vertical-align: middle;
+            top: -16%;
+            text-align: center;
+            font-size: 20px;
+            font-family: monospace;
+            /* z-index: 100000000; */
+            background-color: #f5f5f5e0;
+        }
+
+        .nothingHereScreen.Github{
+            position: absolute;
+            top: 50%;
+            left: 31%;
+        }
+
+
+        .searchLanguageFilter{
+            width:18%;
+            display: flex;
+            flex-direction: row;
+            margin-right: 2%;
+        }
+
+        .languageSelector{
+            width: 100%;
+            height: 75%;
+            margin-top: 5%;
+            font-size: 16px;
+            background-color: whitesmoke;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            border-top: 1px solid #aed7ff;
+            border-bottom: 1px solid #aed7ff;
+            border-left: 1px solid #aed7ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            outline: none;
+        }
+
+        /* .languageSelector.python{
+            width: 10%;
+            height: 100%;
+            border: none;
+            margin-right: 0%;
+            background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Python_logo_and_wordmark.svg/800px-Python_logo_and_wordmark.svg.png);
+            background-size: 60px 60px;
+            background-repeat: no-repeat;
+        } */
+
+        .codeModule.MetaDataLogo.Github{
+            font-size: 3em;
+        }
+    
+        .stackOverFlow.metaData{
+            width: 25%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 2%;
+            border-right: 1px dashed black;
+            padding-right: 2%;
+        }
+
+
+        .stackOverFlow.TagsData{
+            margin-left: 2%;
+            width: 70%;
+            height: 100%;
+            display: inline-flex;
+            justify-content: flex-end;
+        }
+
+        .stackOverFlow.Tag{
+            height: fit-content;
+            font-size: 13px;
+            background-color: #a6def985;
+            padding: 1%;
+            border-radius: 5px;
+            font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
+            width: fit-content;
+            margin-right: 2%;
+        }
+        
+
+        .stackOverFlow.DatesCard{
+            width: 100%;
+            height: 45%;
+            display: flex;
+            flex-direction: column;
+            font-style: italic;
+            display: none;
+        }
+    
+    
+        .stackOverFlow.createdDate{
+            font-size: 12px;
+            text-align: right;
+            width: 100%;
+        }
+    
+        .stackOverFlow.lastActivityDate{
+            font-size: 12px;
+            text-align: right;
+            width: 100%;
+        }
+
+        .stackOverFlow.QuestionTagExtenstion.one, .stackOverFlow.QuestionTagExtenstion.three, .stackOverFlow.QuestionTagExtenstion.five{
+            background-color: orange;
+            height: 7%;
+            width: 1.2%;
+            margin-top: 1.5%;
+            position: absolute;
+            float: left;
+            left: 48.3%;
+            border: 1px solid orange;
+            border-left: none;
+            border-top-right-radius: 7px;
+            color: white;
+            text-orientation: sideways;
+            writing-mode: vertical-lr;
+            padding-top: 1.5%;
+            font-size: 18px;
+        }
+
+        .stackOverFlow.AnswerTagExtenstion.one, .stackOverFlow.AnswerTagExtenstion.three, .stackOverFlow.AnswerTagExtenstion.five{
+            background-color: green;
+            height: auto;
+            width: 1.2%;
+            margin-top: 6.7%;
+            position: absolute;
+            float: left;
+            left: 48.3%;
+            border: 1px solid green;
+            border-left: none;
+            border-top-right-radius: 7px;
+            color: white;
+            text-orientation: sideways;
+            writing-mode: vertical-lr;
+            padding-top: 1.5%;
+            font-size: 18px;
+        }        
+        .stackOverFlow.QuestionTagExtenstion.two,.stackOverFlow.QuestionTagExtenstion.four, .stackOverFlow.QuestionTagExtenstion.six{
+            background-color: orange;
+            height: 7%;
+            width: 1.2%;
+            margin-top: 1.5%;
+            position: absolute;
+            float: left;
+            left: 94%;
+            border: 1px solid orange;
+            border-left: none;
+            border-top-right-radius: 7px;
+            color: white;
+            text-orientation: sideways;
+            writing-mode: vertical-lr;
+            padding-top: 1.5%;
+            font-size: 18px;
+        }
+    
+        .stackOverFlow.AnswerTagExtenstion.two, .stackOverFlow.AnswerTagExtenstion.four, .stackOverFlow.AnswerTagExtenstion.six{
+            background-color: green;
+            height: auto;
+            width: 1.2%;
+            margin-top: 6.7%;
+            position: absolute;
+            float: left;
+            left: 94%;
+            border: 1px solid green;
+            border-left: none;
+            border-top-right-radius: 7px;
+            color: white;
+            text-orientation: sideways;
+            writing-mode: vertical-lr;
+            padding-top: 1.5%;
+            font-size: 18px;
+        }   
+
+
+        .stackOverFlow.QuestionTagExtenstion.clicked, .stackOverFlow.AnswerTagExtenstion.clicked{
+            width: 1.5% !important;
+        }
+ 
+
+
+
+
+
+        .stackOverFlow.acceptedAnswer.one,.stackOverFlow.acceptedAnswer.three,.stackOverFlow.acceptedAnswer.five{
+            background-color: whitesmoke;
+            height: 30px;
+            width: 30px;
+            margin-top: -1.5%;
+            position: absolute;
+            float: left;
+            left: 47.5%;
+            display: none;
+            color: green;        
+            font-size: 2em;
+        }
+    
+        .stackOverFlow.acceptedAnswer.two,.stackOverFlow.acceptedAnswer.four,.stackOverFlow.acceptedAnswer.six{
+            background-color: whitesmoke;
+            height: 30px;
+            width: 30px;
+            margin-top: -1.5%;
+            position: absolute;
+            float: left;
+            left: 93%;
+            display: none;
+            color: green;
+            font-size: 2em;
+        }
+
+        .stackOverFlow.acceptedAnswer.one.minimized,.stackOverFlow.acceptedAnswer.three.minimized{
+            background-color: whitesmoke;
+            height: 30px;
+            width: 30px;
+            margin-top: -1.5%;
+            position: absolute;
+            float: left;
+            left: 30.6%;
+            display: none;
+            color: green;        
+            font-size: 2em;
+        }
+    
+        .stackOverFlow.acceptedAnswer.two.minimized,.stackOverFlow.acceptedAnswer.four.minimized{
+            background-color: whitesmoke;
+            height: 30px;
+            width: 30px;
+            margin-top: -1.5%;
+            position: absolute;
+            float: left;
+            left: 60.5%;
+            display: none;
+            color: green;
+            font-size: 2em;
+        }
+
+        .stackOverFlow.acceptedAnswer.three.minimized,.stackOverFlow.acceptedAnswer.six.minimized{
+            background-color: whitesmoke;
+            height: 30px;
+            width: 30px;
+            margin-top: -1.5%;
+            position: absolute;
+            float: left;
+            left: 90%;
+            display: none;
+            color: green;
+            font-size: 2em;
+        }
+
+
+    
+        .stackOverFlow.ViewsandAnswers{
+            width: 100%;
+            height: 45%;
+            display: flex;
+            flex-direction: row;
+            padding-bottom: 2%;
+        }
+    
+    
+        .stackOverFlow.ViewCount{
+            display: flex;
+            flex-direction: row;
+            margin-top: 4%;
+            /* margin-right: 3%; */
+            width: 100%;
+            /* border-right: 0.5px solid gray; */
+            height: 100%;
+            position: relative;
+        }
+
+        .stackOverFlow.ViewCount .Number{
+            color: green;
+            font-size: 18px;
+            border: none;
+            width: 74%;
+            text-align: right;
+            position: absolute;
+            float: right;
+            right: 2%;
+        }
+
+        .eyeIconForViews{
+            color: black;
+            font-size: 15px;
+            margin-right: 6%;
+        }
+
+        /* Center align only number  */
+
+
+        /* .stackOverFlow.ViewCount .Number{
+            color: green;
+    font-size: 20px;
+    border: none;
+    width: auto;
+    text-align: right;
+    position: absolute;
+    float: right;
+    right: 28%;
+    margin-top: 3%;
+} */
+        .stackOverFlow.ViewCount .Text{
+            color: black;
+            font-size: 14px;
+            border: none;
+            margin: 2%;
+            width: 25%;
+            /* margin-right: 5%; */
+            text-align: right;
+        }
+    
+        .stackOverFlow.title {
+            margin-top: 2%;
+            font-size: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    
+        .stackOverFlow.body{
+            margin-top: 2%;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-y: auto;
+            /* overflow-x: hidden; */
+            height: 68%;
+            margin-bottom: 2%;
+            letter-spacing: 0.1px;
+        }
+    
+        .stackOverFlow.body::-webkit-scrollbar {
+            display: none;
+         }
+
+         .stackOverFlow.Answerbody.content::-webkit-scrollbar {
+             display: none;
+         }  
+
+        .stackOverFlow.Answer.body, .stackOverFlow.body {
+            position: absolute;
+            margin-top: 2%;
+            height: 68%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            overflow-y: auto;
+            transition: transform 1s;
+            background-color: white;
+            width: 96%;
+            margin-bottom: 0%;
+            height: 94%;
+         }
+
+        .stackOverFlow.Answer.body{
+            color: black;
+            transform: rotateY(180deg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-y: auto;
+            padding-left: 1%;
+            width: 96%;
+            background-color: whitesmoke;
+            border-radius: 5px;
+            letter-spacing: 0.1px;
+            display: flex;
+            flex-direction: row;
+
+            /* height: 100%; */
+            /* width: 100%; */
+        }
+        .stackOverFlow.Answerbody.content{
+            color: black;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-y: auto;
+            padding-left: 1%;
+            width: 87%;
+            background-color: whitesmoke;
+            border-radius: 5px;
+            letter-spacing: 0.1px;
+            display: none;
+        }
+
+        .stackOverFlow.Answerbody.content.displayed{
+            color: black;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-y: auto;
+            padding-left: 1%;
+            width: 87%;
+            background-color: whitesmoke;
+            border-radius: 5px;
+            letter-spacing: 0.1px;
+            display: block;
+        }
+
+        .stackOverFlow.Answerbody.VotesAndNavigation{
+            width: 10%;
+            background-color: whitesmoke;
+            height: 100%;
+            display: none;
+        }
+
+        .stackOverFlow.Answerbody.VotesAndNavigation.displayed{
+            width: 10%;
+            background-color: whitesmoke;
+            height: 100%;
+            display: block;
+        }
+
+        .stackOverFlow.Answerbody.votes{        
+            width: 100%;
+            background-color: whitesmoke;
+            height: 20%;
+            font-size: 22px;
+            text-align: center;
+            padding-top: 25%;
+            color: #032158;
+        }
+        .stackOverFlow.Answerbody.navigation{        
+            width: 100%;
+            /* background-color: yellow; */
+            height: 5%;
+            margin-top: 1%;
+            display: flex;
+            flex-direction: row;
+            display: none;
+            position: relative;
+            /* color: #032158;        
+            font-size: 2em;
+            text-align: center; */
+        }
+
+        .stackOverFlow.Answerbody.leftArrowText{
+            width: 48%;
+            text-align: left;
+            display: none;
+        }
+
+        .stackOverFlow.Answerbody.rightArrowText{
+            width: 48%;
+            text-align: right;
+            position: absolute;
+            float: right;
+            right: 2%;
+        }
+
+        .stackOverFlow.Answerbody.rightArrow{
+            width: 2%;
+            /* background-color: yellow; */
+            height: 10%;
+            /* margin-top: 100%; */
+            color: #032158;      
+            text-align: right;  
+            position: absolute;
+            float: right;
+            right: 0%;
+            font-size: 16px;
+        }
+        .stackOverFlow.Answerbody.leftArrow{
+            width: 2%;
+            /* background-color: yellow; */
+            height: 10%;
+            /* margin-top: 100%; */
+            color: #032158;        
+            font-size: 16px;
+            text-align: left;
+            display: none;
+        }
+
+        .stackOverFlow.Answerbody.acceptance{
+            color: transparent;
+            font-size: 2em;
+            text-align: center;
+            width: 100%;
+            margin-top: 7%;
+        }
+
+        .stackOverFlow.Answerbody.acceptance.accepted{
+            color: green;
+            font-size: 2em;
+            text-align: center;
+            width: 100%;
+            margin-top: 7%;
+        }
+
+        .stackOverFlow.FullDetailer.active {
+            transform: rotateY(180deg)
+        }
+
+        .stackOverFlow.FullDetailer{
+            height: 70%;
+            width: 96%;
+            padding-right: 2%;
+            padding-left: 2%;
+            transition: transform 1s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        /* .stackOverFlow.Tag.one{
+            width: fit-content;
+            height: 30%;
+            font-size: 14px;
+            background-color: #a6def985;
+            padding: 7%;
+            border-radius: 5px;
+        } */
+        
+        .modelOutputParent{
+            /* margin-top: 2%; */
+            height: 36%;
+            overflow: hidden;
+            overflow-y: auto;
+            border-top: rgb(209, 209, 209);
+            border-radius: 5px;
+            position: relative;
+        }
+        .modelOutput.outerBodyCard{
+            margin-top: 1%;
+            margin-left: 5%;
+            border: 1px solid rgb(179, 177, 177);
+            transition: box-shadow 3s;
+            border-radius: 5px;
+            width: 89.5%;
+            height: 91%;
+            display: flex;
+            box-shadow: 0;
+            flex-direction: column;
+            margin-bottom: 0%;
+        }
+
+        .modelOutput.outerBodyCard:hover{
+            box-shadow: 0 0 10px #3a3939;
+        }
+
+        .codeModule.MetaData{
+            margin-top: 0.5%;
+            margin-left: 1.5%;
+            /* border: 5px solid aliceblue; */
+            width: 98.5%;
+            height: 12%;       
+            display: flex;
+            flex-direction: row;
+            position: relative;
+        }
+        .codeMiniGithubPreview{
+            margin-top: 0.8%;
+            margin-left: 2.5%;
+            overflow: hidden;
+            border: 1px solid rgb(208 210 212);
+            width: 96.5%;
+            height: 83%;
+            border-bottom: none;
+            }
+
+        .CodeMirror-selected {
+            background-color: rgb(254, 255, 179);
+        }
+
+        .CodeMirror{
+            height: 100%;
+        }
+        select {
+            font-size: 16px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            border: none;
+            /* text-align-last:center; */
+            /* text-align: center; */
+            text-indent: 5px;
+            /* direction: rtl; */
+            }
+
+        select::-ms-expand {
+            display: none; 
+        }
+
+        @media screen and (min-width:0\0) {
+            select {
+                background: none\9;
+                padding: 5px\9;
+            }
+        }
+        .LanguageFilterLogo{
+            font-size: 1.2em;
+            color: black;
+            width: 8%;
+            padding-top: 2%;
+            height: 65%;
+            /* padding-top: 1%; */
+            margin-top: 3%;
+            background-color: whitesmoke;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            border: none;
+        }
+
+        select#languages option {
+            background-repeat:no-repeat;
+            background-position:bottom left;
+            padding-left:30px;
+        }
+
+        option{
+            background-color: whitesmoke;
+            font-size: 16px;
+            text-align: left;
+        }
+
+
+        .dropbtn {
+            width: 100%;
+            height: 75%;
+            margin-top: 5%;
+            font-size: 16px;
+            background-color: whitesmoke;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+            /* border-top: 1px solid #aed7ff;
+            border-bottom: 1px solid #aed7ff;
+            border-left: 1px solid #aed7ff; */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            outline: none;
+            border-right: none;
+            border: none;
+        }
+  
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+  
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: whitesmoke;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 
+                0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+  
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+  
+        .dropdown-content a:hover {
+            background-color: whitesmoke;
+        }
+  
+        .searchLanguageFilter:hover .dropdown-content {
+            display: block;
+        }
+
+
+        .languageSelectorLogo.Option{
+            height: 35;
+            width: 50;
+        }
+        .languageSelectorText.Option{
+        height: 28;
+        width: 70;
+        position: absolute;
+        bottom: 0%;
+        left: 34%;
+        font-size: 16px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }  
+
+        .languageSelectorText.Option.Go{
+        height: 28;
+        width: 70;
+        position: absolute;
+        bottom: 12%;
+        left: 34%;
+        font-size: 16px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }  
+
+        .languageSelectorLogo.Option.Go{
+            height: 24px;
+            margin-left: 3%;
+            padding: 0%;
+            width: 35px;
+            top: 5%;
+            position: absolute;
+        }
+        .ChosenLanguageFilterLogo{
+            display: none;
+            height: 34.5;
+            width: 50;
+            margin-top: 3%;
+            background-color: whitesmoke;
+            /* border-top: 1px solid #aed7ff;
+            border-bottom: 1px solid #aed7ff; */
+        }
+
+        .ChosenLanguageFilterLogo.Go{
+            height: 17px;
+            width: 45px;
+            padding: 2%;
+            padding-top: 4.6%;
+            padding-bottom: 3.4%;
+            margin-top: 3%;
+            background-color: whitesmoke;
+        }
+        
+        #stackOverFlowCard3,#stackOverFlowCard4,#stackOverFlowCard5,#stackOverFlowCard6{
+            display: none;
+        }
+
+        .nextStackOverflowCardFloater.invisible{
+            font-size: 3em;
+            color: white;
+            margin-top: 10%;
+            height: 12%;
+        }
+
+        .nextStackOverflowCardFloater{
+            font-size: 3em;
+            color: black;
+            margin-top: 10%;
+            height: 12%;
+        }
+
+        .nextStackOverflowCardFloater.minimized{
+            margin-top: 5%;
+        }
+
+        .previousStackOverflowCardFloater.minimized{
+            margin-top: 5%;
+        }
+
+        .previousStackOverflowCardFloater.invisible{
+            font-size: 3em;
+            /* display: none; */
+            color: white;
+            margin-top: 10%;
+            margin-right: 1%;
+            height: 12%;
+        }
+        
+        .previousStackOverflowCardFloater{
+            font-size: 3em;
+            /* display: none; */
+            color: black;
+            margin-top: 10%;
+            margin-right: 1%;
+            height: 12%;
+        }
+
+        .modelSelectorParent{
+            width: 10%;
+            font-size: 13px;
+            position: absolute;
+            float: right;
+            top: 0%;
+            right: 1%;
+            margin-right: 4%;
+            display: none;
+            flex-direction: row;
+        }
+
+        /* Below is the css for the toggle buttom */
+        .switch {
+  position: relative;
+  display: inline-block;
+  width: 65px;
+  height: 24px;
+  margin-top: 1%;
+}
+
+.semanticsText{
+    position: relative;
+  display: inline-block;
+  margin-top: 1.3%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin-right: 0.5%;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: grey;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 15px;
+  width: 15px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #c13f15;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #c13f15;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(42px);
+  -ms-transform: translateX(42px);
+  transform: translateX(42px);
+}
+
+/*------ ADDED CSS ---------*/
+.on
+{
+  display: none;
+}
+
+.on, .off
+{
+  color: white;
+  position: absolute;
+  transform: translate(-50%,-50%);
+  top: 50%;
+  left: 50%;
+  font-size: 10px;
+  font-family: Verdana, sans-serif;
+}
+
+input:checked+ .slider .on
+{display: block;}
+
+input:checked + .slider .off
+{display: none;}
+
+/*--------- END --------*/
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;}
+/* toggle button css ends   */
+
+    .rediSearchModel{
+        font-size: 14px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin-right: 2%;
+        margin-top: 2%;
+        /* width: 45px;
+    height: 45px;
+    min-height: 5%;
+    border: none;
+    margin-right: 0%;
+    background-image: url(/static/AdvancedSearch2.png);
+    background-size: 25px 22px;
+    background-repeat: no-repeat;
+    z-index: 1000;
+    position: absolute;
+    float: right;
+    right: 13%; */
+    }
+
+    .LSAModel{
+        font-size: 14px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin-left: 2%;
+        margin-top: 2%;
+    /* width: 45px;
+    height: 45px;
+    min-height: 5%;
+    border: none;
+    margin-right: 0%;
+    background-image: url(/static/AdvancedSearch2.png);
+    background-size: 25px 22px;
+    background-repeat: no-repeat;
+    z-index: 1000;
+    position: absolute;
+    float: right;
+    right: 13%; */
+    }
+
+    /* The three stage toggle is here*/
+    .switch-toggle {
+        float: left;
+        background: whitesmoke;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin-top: 1.5%;
+    margin-left: 45%;
+    width: 11.5%;
+    margin-bottom: 0.5%;
+    border-radius: 5px;
+    border: 1px solid green;
+    }
+.switch-toggle input {
+  position: absolute;
+  opacity: 0;
+  
+}
+.switch-toggle input + label {
+  padding: 7px;
+  float:left;
+  color: black;
+  cursor: pointer;
+}
+.switch-toggle input:checked + label {
+  background: grey;
+  color: white;
+}
+.searchFilterParent{
+    display: flex;
+    flex-direction: row;
+    margin-left: 40%;
+    margin-top: 1%;
+    height: 5%;
+}
+
+.semantiCatLogo{
+    height: 11%;
+    position: absolute;
+    float: left;
+    right: 39.5%;
+    top: 29%;
+}
+    </style>
+    
+    
+    <body>
+
+        <img class="semantiCatLogo" src="/static/fullSizeLogo.jpg" />
+        
+        <div class = "searchHeader">
+            <input type='text' class='searchBox' id='query' name='query' value=''>
+    
+            <div id = "searchButton" onclick="passParams()" ><i class="fa fa-search" aria-hidden="true"></i></div>
+            
+
+        </div>
+
+        <div class = "searchFilterParent">
+
+            <div class="searchLanguageFilter">
+                <div class="dropdown">
+                    <button class="dropbtn" >
+                        Language Filter
+                    </button>
+                      
+                    <div class="dropdown-content">
+                        <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-bottom: 0%;" onclick="setLanguage('Python')">
+                            <img class="languageSelectorLogo Option Python" src="https://banner2.cleanpng.com/20180506/ile/kisspng-python-programming-language-computer-programming-5aefaba25ef4a4.302516281525656482389.jpg">
+                            <div class="languageSelectorText Option Python Text">Python</div>
+                        </div>
+          
+                        <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%;" onclick="setLanguage('Javascript')">
+                            <img class="languageSelectorLogo Option Javascript" src="https://mpng.subpng.com/20190627/ttx/kisspng-javascript-computer-icons-scalable-vector-graphics-list-of-javascript-enhancements-fandom-developers-5d145895b06253.7824611015616144857225.jpg">
+                            <div class="languageSelectorText Option Javascript Text">Javascript</div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%; height: 35;" onclick="setLanguage('Go')">
+                            <img class="languageSelectorLogo Option Go" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1200px-Go_Logo_Blue.svg.png">
+                            <div class="languageSelectorText Option Go Text">Go</div>
+                        </div>                            
+                    </div>
+                </div>
+                <img class="ChosenLanguageFilterLogo"></img>
+                <i class="LanguageFilterLogo fa fa-sort-desc chosen" aria-hidden="true"></i>
+            </div>
+            <div class="semanticsText">
+                Semantics
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="togBtn" onclick="enableSemantics()">
+                <div class="slider round">
+                 <span class="on">ON</span>
+                 <span class="off">OFF</span>
+                </div>
+               </label>
+        </div>
+
+    </body>
+    

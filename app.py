@@ -17,28 +17,53 @@ def name_of_app(name):
            'With our service, you can search for relevant answers in stackoverflow ' \
            'and github code modules just by using natural language' % name
 
+
+@app.route('/')
+# '/search' URL is bound with search_only_bar() function
+def search_only_bar():
+    return render_template(
+        '/searchLandingView/landingPageOnlyBar.html',
+    )
+
 @app.route('/search/')
-# '/ques' URL is bound with search_stack_overflow() function
-# function accepts the query string and returns top num questions
-# by relevance using the stackoverflow API
+# '/search' URL is bound with search_landing_page() function
 def search_landing_page():
+    queryString = request.args.get('querystring')
+    chosenLanguage = request.args.get('lang')
+    semanticsNeeded = request.args.get('semantics')
+    print(chosenLanguage)
+    print(semanticsNeeded)
     return render_template(
         '/searchLandingView/landingPage2Cards.html',
-        title="Jinja Demo Site",
-        description="Smarter page templates with Flask & Jinja."
+        queryValue=queryString,
+        chosenLanguage=chosenLanguage,
+        semanticsNeeded=semanticsNeeded,
     )
 
 
+@app.route('/search/model/<string:query>/')
+@app.route('/search/model/<string:query>/<string:lang>/')
+# '/search' URL is bound with search_landing_page() function
+def search_model(query,lang="python"):
+
+    with open("data/sample_model_output.json", "r") as read_file:
+        model_data = json.load(read_file)
+
+    return model_data
+    # return render_template(
+    #     '/searchLandingView/landingPage2Cards.html',
+    #     title="Jinja Demo Site",
+    #     description="Smarter page templates with Flask & Jinja."
+    # )
 
 
 
-
-
+@app.route('/search/<string:query>/')
 @app.route('/search/<string:query>/<string:lang>')
-# '/ques' URL is bound with search_stack_overflow() function
+# '/search' URL is bound with search_stack_overflow() function
 # function accepts the query string and returns top num questions
 # by relevance using the stackoverflow API
-def search_stack_overflow(query,lang):
+def search_stack_overflow(query,lang='python'):
     # first getting the argument 'query' from the GET request
     # which is the natural language query string
     # query = request.args.get('query')
@@ -88,6 +113,8 @@ def search_stack_overflow(query,lang):
                           'answer_id': answer.get("answer_id")}
         response['items'][answer.get("question_id")]['answers'].append(answer_details)
 
+    print(response)
+    
     return response
 
 
