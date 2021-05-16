@@ -11,7 +11,7 @@
     "quick_deploy": "",
     "deploy_buttons": [],
     "language": ["Python", "Flask", "RedisAI", "RediSearch"],
-    "redis_commands": [], // Enter all the Redis commands
+    "redis_commands": ["MODELRUN","TENSORSET","TENSORGET","MODELSET","MODELGET"], // Enter all the Redis commands
     "redis_features": ["model-serving", "secondary-indexing"],
     "redis_modules": ["RediSearch", "RedisAI"],
     "app_image_urls": [
