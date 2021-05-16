@@ -1,0 +1,23 @@
+{
+    "app_name": "SemantiSearch",
+    "description": "An information retrieval tool built on semantic search capabilities for large codebases and stackoverflow questions",
+    "hidden": "false",
+    "rank": "100",
+    "type": "Full App",
+    "contributed_by": "Community",
+    "repo_url": "https://github.com/naanunaane/semanti-search",
+    "download_url": "",
+    "hosted_url": "",
+    "quick_deploy": "",
+    "deploy_buttons": [],
+    "language": ["Python", "Flask", "RedisAI", "RediSearch"],
+    "redis_commands": [], // Enter all the Redis commands
+    "redis_features": ["model-serving", "secondary-indexing"],
+    "redis_modules": ["RediSearch", "RedisAI"],
+    "app_image_urls": [
+    "https://github.com/naanunaane/semanti-search/blob/main/resources/full-logo-no-bg.png"],
+    "youtube_url": "", //Provide a Youtube link to your app's video
+    "special_tags": ["Hackathon"],
+    "verticals": ["Technology"], // Can be: "Healthcare", "Financial", "Tourism", "Retail", "Oil & Gas", "Manufacturing", "Technology","Education", "Construction"
+    "markdown": "https://raw.githubusercontent.com/naanunaane/semanti-search/main/README.md"
+}
