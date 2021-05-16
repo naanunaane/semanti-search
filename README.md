@@ -38,6 +38,13 @@ Cosine Similarity is a common method to calculate similarity between documents a
 
 The cosine similarity is defined as the dot product of the vectors divided by the magnitude of the vectors. 
 
+### BERT
+BERT (Bidirectional Encoder Representations) is a Transformer based language model pretrained on english lancuage corpus with around 3.3B word-count.This model reported state-of-the-art performance on a wide range of natural language understanding tasks. BERT model consists of an encoder and decoder, the query sentance is encoded by the model into a high dimentional vector which is decoded by the decoder. We use the encoder of a pretrained-BERT model to encode queries into vectors which are fed to the nearest-neighbor search.
+
+### Nearest Neighbor Search
+Docstrings of the functions are converted into vectors and used ffor approximate nearest neighbor matching based on the query. For each query vector obtained from the BERT-encoder 10 nearest docstring vectors are found and returned based on their distance from the query.
+
+
 ## Dev Setup
 
 ### Requirements:
