@@ -13,7 +13,7 @@
 
 
 <script type="text/javascript">
-    var chosenLanguage = 'Python'
+    var chosenLanguage = 'python'
     var pythonImgSrc = 'https://banner2.cleanpng.com/20180506/ile/kisspng-python-programming-language-computer-programming-5aefaba25ef4a4.302516281525656482389.jpg'
     var JavaScriptImgSrc = 'https://mpng.subpng.com/20190627/ttx/kisspng-javascript-computer-icons-scalable-vector-graphics-list-of-javascript-enhancements-fandom-developers-5d145895b06253.7824611015616144857225.jpg'
     var GoImgSrc = 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1200px-Go_Logo_Blue.svg.png'
@@ -30,7 +30,7 @@
     var numberOfModels = 1
 
     function enableSemantics(){
-        this.semanticsNeeded = true;
+        this.semanticsNeeded = !this.semanticsNeeded;
     }
 
     function setLanguage(lang)
@@ -1244,7 +1244,7 @@ input:checked + .slider .off
                 <i class="LanguageFilterLogo fa fa-sort-desc chosen" aria-hidden="true"></i>
             </div>
             <div class="semanticsText">
-                Semantics
+                Advanced
             </div>
             <label class="switch">
                 <input type="checkbox" id="togBtn" onclick="enableSemantics()">
