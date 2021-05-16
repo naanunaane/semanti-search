@@ -49,18 +49,16 @@ def create_response_model(ids, client, scores):
 
     # Initialising output array
     output = []
-    print("Printing client info", client.info())
     # As I cannot pass a list/collection to the get function,
     # I'll have to specifically get each of the variables in list and pass
     # There should be a better way to do this
     for i in range(len(ids)):
         response = client.get("doc:{}".format(ids[i]))[0]
-        print("The response for id {} is {}".format(ids[i], response))
         output.append(
             {"id": int(ids[i]),
              "codelink": response[1],
              "funcName": response[7],
-             "score": float(scores[i]),
+             "score": float(scores[i].__round__(2)),
              "docString": response[3],
              "codeString": response[5]}
         )
@@ -114,8 +112,9 @@ def run_lsi(query, lang, con):
     scores = cosine_similarity(corpus_vec, Y=query_svd, dense_output=True)
     scores_list = []
     for i in range(len(scores)):
-        scores_list.append(scores[i][0])
+        scores_list.append(scores[i][0]*100)
     ids = np.argsort(-1*np.asarray(scores_list))
+    scores_list.sort(reverse=True)
     response = create_response_model(ids[0:2], clients["{}_client".format(lang)], scores_list[0:2])
 
     return response
@@ -224,7 +223,7 @@ def search_stack_overflow(query,lang='python'):
         # getting answers for the questions
         if len(question_ids) != 0:
             ans_data = requests.get(
-            'https://api.stackexchange.com/2.2/questions/{}/answers?pagesize={}&order=desc&sort=votes&site=stackoverflow'.format(
+            'https://api.stackexchange.com/2.2/questions/{}/answers?pagesize={}&order=desc&sort=votes&site=stackoverflow&filter=!nL_HTxLa9u'.format(
                 ';'.join(map(str, question_ids)), num * 5))
 
             # uncomment the below part to run in local without hitting API all the time
