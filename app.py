@@ -7,6 +7,7 @@ import redisai
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+import pandas as pd
 
 
 # Flask constructor takes the name of
@@ -14,7 +15,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 app = Flask(__name__)
 
 # Initialising the redisai client
-con = redisai.Client("localhost", 6379)
+con = redisai.Client()
 
 # Initialising the redisearch clients objects inside dictionary
 clients = {}
@@ -23,12 +24,18 @@ clients = {}
 vectorisers = {}
 
 lang_list = ["python", "go", "javascript", "java"]
+column_names = ["bool", "code_link", "funcName", "docstring", "codestring"]
+
+# For the purposes of running things without restrictions on memory, we will create our models with
+# a very small sample dataset for each programming language
+num_rows = 5000
 for lang in lang_list:
     clients["{}_client".format(lang)] = Client("{}_docs".format(lang))
-    old_vectoriser = load("data_&_models/{}/tfidf.pkl".format(lang))
-    new_vectoriser = TfidfVectorizer(analyzer='word', ngram_range=(1,2), stop_words = "english", lowercase = True,
-                          max_features = 500000, vocabulary=old_vectoriser.vocabulary_)
-    vectorisers["{}_vec".format(lang)] = new_vectoriser
+    corpus_df = pd.read_csv("data_&_models/{}/train_{}_small.csv".format(lang, lang), names=column_names)
+    # Initialising the vectorizer object with the docstring of the functions
+    vectorizer = TfidfVectorizer()
+    vectorizer.fit(corpus_df['docstring'][1:num_rows + 1].apply(lambda x: np.str_(x)))
+    vectorisers["{}_vec".format(lang)] = vectorizer
 
 def create_response_model(ids, client, scores):
     """
@@ -39,28 +46,23 @@ def create_response_model(ids, client, scores):
     - client: The RediSearch client object for that specific index
     - scores: List of scores of the corresponding id in `ids` list
     """
-    # The prefix used in IndexDefinition while creating the index
-    indexing = "doc"
-    indexing += '{0}'
-    # Adding the prefix to all the ids. Ex: [1,2] becomes ["doc:1", "doc:2"]
-    ids_pf = [indexing.format(i) for i in ids]
-    print("The ids to be queried for model are", ids_pf)
 
     # Initialising output array
     output = []
+    print("Printing client info", client.info())
     # As I cannot pass a list/collection to the get function,
     # I'll have to specifically get each of the variables in list and pass
     # There should be a better way to do this
     for i in range(len(ids)):
         response = client.get("doc:{}".format(ids[i]))[0]
-        print("The response for id {} is {}".format(i, response))
+        print("The response for id {} is {}".format(ids[i], response))
         output.append(
-            {"id": response.docs[i].id,
-             "codelink": response.docs[i].url,
-             "funcName": response.docs[i].funcName,
-             "score": scores[i],
-             "docString": response.docs[i].docString,
-             "codeString": response.docs[i].codeString}
+            {"id": int(ids[i]),
+             "codelink": response[1],
+             "funcName": response[7],
+             "score": float(scores[i]),
+             "docString": response[3],
+             "codeString": response[5]}
         )
 
     return output
@@ -103,18 +105,18 @@ def run_lsi(query, lang, con):
     - con: The RedisAI client
     """
     # First, we vectorise the query string and then set the tensor in redisai
-    query_vec = vectorisers["{}_vec".format(lang)].fit_transform(list(query))
-    print(query_vec.shape)
+    query_list = [query]
+    query_vec = vectorisers["{}_vec".format(lang)].transform(query_list)
     con.tensorset('query_vec', query_vec.todense().astype(np.float32), dtype='float32')
     con.modelrun(key="{}_svd".format(lang), inputs=["query_vec"], outputs=["query_svd"])
     query_svd = con.tensorget(key="query_svd", as_numpy=True)
-    print(query_svd.shape)
     corpus_vec = con.tensorget(key="{}_vec".format(lang), as_numpy=True)
-    print(corpus_vec.shape)
     scores = cosine_similarity(corpus_vec, Y=query_svd, dense_output=True)
-    ids = np.argsort(scores).tolist()
-    # print("From run_lsi, going to query for these ids", ids)
-    response = create_response_model(ids[0:2], clients["{}_client".format(lang)], scores.tolist()[0:2])
+    scores_list = []
+    for i in range(len(scores)):
+        scores_list.append(scores[i][0])
+    ids = np.argsort(-1*np.asarray(scores_list))
+    response = create_response_model(ids[0:2], clients["{}_client".format(lang)], scores_list[0:2])
 
     return response
 
@@ -161,10 +163,11 @@ def search_model(query,lang="python"):
     - query: Query string passed by user
     - lang: The programming language for which query was made. Default is "python"
     """
+    print("The model lang is ", lang)
     # uncomment to read from static file
     # with open("data/sample_model_output.json", "r") as read_file:
     #     model_data = json.load(read_file)
-    model_data = {"queryID": 11110000,
+    model_data = {"queryID": 111,
                   "model1": create_response_redisearch(query, clients["{}_client".format(lang)], 3),
                   "model2": run_lsi(query, lang, con),
                   "model3": []}
@@ -190,20 +193,18 @@ def search_stack_overflow(query,lang='python'):
     query = request.args.get('query')
     # getting the response from the stackoverflow API
     num = 5
-    ques_data = requests.get('https://api.stackexchange.com/2.2/search/advanced?pagesize={}&order=desc&sort=relevance&q={}%20%{}&site=stackoverflow'.format(num, query, lang))
+    ques_data = requests.get('https://api.stackexchange.com/2.2/search/advanced?pagesize={}&order=desc&sort=relevance&q={}{}{}&site=stackoverflow&filter=!nL_HTx9iJf'.format(num, query, " ",lang))
 
     # uncomment this to run in local without hitting API all the time
-    # with open("data/sample-stackoverflow-query-response.json", "r") as read_file:
+    # with open("data_&_models/sample-stackoverflow-query-response.json", "r") as read_file:
     #     ques_data = json.load(read_file)
 
     # preparing the output json
     response = {'has_more': ques_data.json().get('has_more'), 'items': {}}  # added key telling whether there are more questions for query or not
     question_ids = []  # Empty list of question ids
 
-    print(ques_data.json().get('items'))
-
     # looping through each question if response object actually has output
-    if len(ques_data.json().get('items')) == 0:
+    if len(ques_data.json().get('items')) != 0:
         for question in ques_data.json().get('items'):
             # getting required values related to the question
             question_details = {'creation_date': question.get("creation_date"),
@@ -228,7 +229,7 @@ def search_stack_overflow(query,lang='python'):
                 ';'.join(map(str, question_ids)), num * 5))
 
             # uncomment the below part to run in local without hitting API all the time
-            # with open("data/sample-stackoverflow-answer-response.json", "r") as read_file:
+            # with open("data_&_models/sample-stackoverflow-answer-response.json", "r") as read_file:
             #     ans_data = json.load(read_file)
 
             for answer in ans_data.json().get('items'):
@@ -238,8 +239,6 @@ def search_stack_overflow(query,lang='python'):
                                   'score': answer.get("score"),
                                   'answer_id': answer.get("answer_id")}
                 response['items'][answer.get("question_id")]['answers'].append(answer_details)
-
-    print("The stackoverflow response is ", response)
     return response
 
 

@@ -39,6 +39,8 @@ def write_df_to_redis(corpus_df, num, client):
     - client: The RediSearch client object for that specific index
     - num: Maximum number of records to be written to Redisearch with the index in client
     """
+    print("In write df to redis. The client info is ", client.info())
+    print("The corpus df head is ", corpus_df['funcName'].head(3))
     for i in range(1, num + 1):
         doc = {
             'funcName': corpus_df['funcName'][i],
@@ -50,7 +52,7 @@ def write_df_to_redis(corpus_df, num, client):
 
 
 # Creating a client object for redisai
-con = redisai.Client("localhost", 6379)
+con = redisai.Client()
 
 # You shouldn't run this if the backend has already been loaded
 # Throws up an error if reloaded
@@ -76,6 +78,7 @@ for lang in lang_list:
     corpus_df = pd.read_csv("../data_&_models/{}/train_{}_small.csv".format(lang, lang), names=column_names)
     # Getting the client object for the index created for the function
     client = create_index_in_redisearch(lang)
+    print("For lang {}, the client info is {}".format(lang, client.info()))
     # Writes the num_rows of the dataframe to redisearch
     write_df_to_redis(corpus_df=corpus_df, num=num_rows, client=client)
     # Reading the reduced vectors for each language
@@ -87,6 +90,10 @@ for lang in lang_list:
     con.modelset(key="{}_svd".format(lang), backend="ONNX", device="CPU", data=svd_onnx.SerializeToString(),
                  tag="v1.00", inputs=['query_tfidf'], outputs=['mul'])
 
+# for lang in lang_list:
+#     corpus_df = pd.read_csv("../data_&_models/{}/train_{}.csv".format(lang, lang), names=column_names)
+#     # Using pandas to read csv
+#     corpus_df.head(6000).to_csv("../data_&_models/{}/train_{}_small.csv".format(lang, lang), index=False)
 # # Now we set the torchscript for acting as the scorer
 # scorer_script = ml2rt.load_script("calculate_scores.txt")
 # con.scriptset("lsi_scorer", "CPU", scorer_script)
@@ -95,5 +102,5 @@ for lang in lang_list:
 # model_file = '../data_&_models/bert_pretrained.pt'
 # with open(model_file, 'rb') as f:
 #     model = f.read()
-#
+
 # con.modelset('bert-qa', 'TORCH', 'CPU', model)
