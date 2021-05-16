@@ -202,7 +202,6 @@ def search_stack_overflow(query,lang='python'):
     # preparing the output json
     response = {'has_more': ques_data.json().get('has_more'), 'items': {}}  # added key telling whether there are more questions for query or not
     question_ids = []  # Empty list of question ids
-
     # looping through each question if response object actually has output
     if len(ques_data.json().get('items')) != 0:
         for question in ques_data.json().get('items'):
