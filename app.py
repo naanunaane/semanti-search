@@ -6,6 +6,7 @@ from redisearch import Client, Query
 import redisai
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 # Flask constructor takes the name of
@@ -24,7 +25,10 @@ vectorisers = {}
 lang_list = ["python", "go", "javascript", "java"]
 for lang in lang_list:
     clients["{}_client".format(lang)] = Client("{}_docs".format(lang))
-    vectorisers["{}_vec".format(lang)] = load("data_&_models/{}/tfidf.joblib".format(lang))
+    old_vectoriser = load("data_&_models/{}/tfidf.pkl".format(lang))
+    new_vectoriser = TfidfVectorizer(analyzer='word', ngram_range=(1,2), stop_words = "english", lowercase = True,
+                          max_features = 500000, vocabulary=old_vectoriser.vocabulary_)
+    vectorisers["{}_vec".format(lang)] = new_vectoriser
 
 def create_response_model(ids, client, scores):
     """
@@ -99,15 +103,17 @@ def run_lsi(query, lang, con):
     - con: The RedisAI client
     """
     # First, we vectorise the query string and then set the tensor in redisai
-    query_vec = vectorisers["{}_vec".format(lang)].transform(list(query))
+    query_vec = vectorisers["{}_vec".format(lang)].fit_transform(list(query))
+    print(query_vec.shape)
     con.tensorset('query_vec', query_vec.todense().astype(np.float32), dtype='float32')
     con.modelrun(key="{}_svd".format(lang), inputs=["query_vec"], outputs=["query_svd"])
     query_svd = con.tensorget(key="query_svd", as_numpy=True)
-    corpus_vec = con.tensorget(key="{}_vec".format(lang), as_numpy=True)[:, :-1]
-    print(corpus_vec.dims())
+    print(query_svd.shape)
+    corpus_vec = con.tensorget(key="{}_vec".format(lang), as_numpy=True)
+    print(corpus_vec.shape)
     scores = cosine_similarity(corpus_vec, Y=query_svd, dense_output=True)
     ids = np.argsort(scores).tolist()
-    print("From run_lsi, going to query for these ids", ids)
+    # print("From run_lsi, going to query for these ids", ids)
     response = create_response_model(ids[0:2], clients["{}_client".format(lang)], scores.tolist()[0:2])
 
     return response

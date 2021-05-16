@@ -54,7 +54,7 @@ con = redisai.Client("localhost", 6379)
 
 # You shouldn't run this if the backend has already been loaded
 # Throws up an error if reloaded
-con.loadbackend("TORCH", "/usr/lib/redis/modules/backends/redisai_torch/redisai_torch.so")
+#con.loadbackend("TORCH", "/usr/lib/redis/modules/backends/redisai_torch/redisai_torch.so")
 
 # Listing down the languages we're supporting.
 # If you want to have your models running only for some languages,
@@ -79,9 +79,9 @@ for lang in lang_list:
     # Writes the num_rows of the dataframe to redisearch
     write_df_to_redis(corpus_df=corpus_df, num=num_rows, client=client)
     # Reading the reduced vectors for each language
-    vectors_df = pd.read_csv("../data_&_models/{}/train_{}_matrix_{}.csv".format(lang, lang, num_rows))
+    vectors_df = pd.read_csv("../data_&_models/{}/train_{}_matrix_{}.csv".format(lang, lang, num_rows), index_col=False)
     # Writing the tensor to redisai
-    con.tensorset('{}_vec'.format(lang), vectors_df.loc[:, vectors_df.columns != 'Unnamed:0'].to_numpy(dtype='float32'), dtype='float32')
+    con.tensorset('{}_vec'.format(lang), np.delete(vectors_df.to_numpy(dtype='float32'), 0, 1), dtype='float32')
     # Reading the svd model fit to the language
     svd_onnx = onnx_load('../data_&_models/{}/svd.onnx'.format(lang))
     con.modelset(key="{}_svd".format(lang), backend="ONNX", device="CPU", data=svd_onnx.SerializeToString(),

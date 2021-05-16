@@ -31,26 +31,26 @@ for lang in lang_list:
     # We use .pkl format to store the vectoriser. As the vectorisation doesn't really require data locality,
     # we are not losing a lot by not hosting this on redis-ai as well
     # Saving the vectoriser in a pickle file
-    dump(vectorizer, "../data_&_models/{}/tfidf.joblib".format(lang))
+    dump(vectorizer, "../data_&_models/{}/tfidf.pkl".format(lang))
 
     # Initialising the reducer with truncated svd to reduce the tokenisation to
     # 5 dimensions for each document
-    svd = TruncatedSVD(n_components=5, n_iter=7, random_state=42)
-    lsi = svd.fit_transform(tfidf)
-
-    # Comment the below lines if don't want to actually want to re-write the csvs
-    lsi_vector_df = pd.DataFrame(lsi)
-    lsi_vector_df.to_csv("../data_&_models/{}/train_{}_matrix_{}.csv".format(lang, lang, num_rows))
+    # svd = TruncatedSVD(n_components=5, n_iter=7, random_state=42)
+    # lsi = svd.fit_transform(tfidf)
+    #
+    # # Comment the below lines if don't want to actually want to re-write the csvs
+    # lsi_vector_df = pd.DataFrame(lsi)
+    # lsi_vector_df.to_csv("../data_&_models/{}/train_{}_matrix_{}.csv".format(lang, lang, num_rows))
 
     # Converts the fit svd model for the language to onnx file format for further use
     # See http://onnx.ai/sklearn-onnx/introduction.html, for more details when you
     # experiment on your own
-    query_string = ["Write metadata to file"]
-    query_vectorised = vectorizer.transform(query_string)
-    try:
-        svd_onnx = to_onnx(svd, query_vectorised.toarray().astype(np.float32), target_opset=12)
-    except RuntimeError as e:
-        print(e)
-    # write the svd to onnx file
-    with open("../data_&_models/{}/svd.onnx".format(lang), "wb") as f:
-        f.write(svd_onnx.SerializeToString())
+    # query_string = ["Write metadata to file"]
+    # query_vectorised = vectorizer.transform(query_string)
+    # try:
+    #     svd_onnx = to_onnx(svd, query_vectorised.toarray().astype(np.float32), target_opset=12)
+    # except RuntimeError as e:
+    #     print(e)
+    # # write the svd to onnx file
+    # with open("../data_&_models/{}/svd.onnx".format(lang), "wb") as f:
+    #     f.write(svd_onnx.SerializeToString())
