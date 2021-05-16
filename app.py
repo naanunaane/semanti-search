@@ -1,21 +1,68 @@
 from flask import Flask, request, Response, render_template
-import requests
-import json
 from joblib import load, dump
+from nearpy import Engine
 from redisearch import Client, Query
-import redisai
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from tqdm import tqdm
+from transformers import BertTokenizer, BertForPreTraining
+import json
+import ml2rt
+import numpy as np
+import onnx
+import onnxruntime as rt
+import os
 import pandas as pd
-
+import redisai
+import requests
+import torch
+import torch.nn as nn
 
 # Flask constructor takes the name of
 # current module (__name__) as argument.
 app = Flask(__name__)
 
+#initializing bert model
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model = BertForPreTraining.from_pretrained('bert-base-uncased',return_dict=False)
+model.cls.seq_relationship = nn.Identity()
+
 # Initialising the redisai client
 con = redisai.Client()
+model_file = 'bert_pretrained.pt'
+bert_model  =  open(model_file, 'rb').read()
+
+
+con.modelset('bert-qa', 'TORCH', 'CPU', bert_model)
+bert_languages = ['python','ruby','java','javascript','php','go']
+
+for lang in bert_languages:
+    con.tensorset(lang+'_embeddings',np.load('language/'+lang+'_bert.npy'))
+
+
+def search_bert(query,language):
+    # load the corresponding embeddings dataset
+    dimension = 768
+    embeddings = con.tensorget(language+'_embeddings')
+    engine = Engine(dimension)
+    for index in tqdm(range(5000)):
+        v = embeddings[index]
+        engine.store_vector(v,index)
+    inputs  = tokenizer(query,max_length=512,return_tensors='pt')
+    con.tensorset('input_ids',np.array(inputs['input_ids']))
+    con.tensorset('token_type_ids',np.array(inputs['token_type_ids']))
+    con.modelrun('bert-qa', ['input_ids',  'token_type_ids'],['prediction_logits', 'seq_relationship_logits'])
+    output =  con.tensorget('seq_relationship_logits').squeeze()
+    neighbors=engine.neighbours(output)
+    indices = []
+    distances = []
+    count = 0
+    for _,idx,dist in tqdm(neighbors):
+        indices.append(idx)
+        distances.append(dist)
+    return (indices,distances)
+
+
 
 # Initialising the redisearch clients objects inside dictionary
 clients = {}
@@ -49,16 +96,18 @@ def create_response_model(ids, client, scores):
 
     # Initialising output array
     output = []
+    print("Printing client info", client.info())
     # As I cannot pass a list/collection to the get function,
     # I'll have to specifically get each of the variables in list and pass
     # There should be a better way to do this
     for i in range(len(ids)):
         response = client.get("doc:{}".format(ids[i]))[0]
+        print("The response for id {} is {}".format(ids[i], response))
         output.append(
             {"id": int(ids[i]),
              "codelink": response[1],
              "funcName": response[7],
-             "score": float(scores[i].__round__(2)),
+             "score": float(scores[i]),
              "docString": response[3],
              "codeString": response[5]}
         )
@@ -112,9 +161,8 @@ def run_lsi(query, lang, con):
     scores = cosine_similarity(corpus_vec, Y=query_svd, dense_output=True)
     scores_list = []
     for i in range(len(scores)):
-        scores_list.append(scores[i][0]*100)
+        scores_list.append(scores[i][0])
     ids = np.argsort(-1*np.asarray(scores_list))
-    scores_list.sort(reverse=True)
     response = create_response_model(ids[0:2], clients["{}_client".format(lang)], scores_list[0:2])
 
     return response
@@ -163,13 +211,20 @@ def search_model(query,lang="python"):
     - lang: The programming language for which query was made. Default is "python"
     """
     print("The model lang is ", lang)
+
+
+    # converting bert_data to required format 
+    bert_data  = search_bert(query,lang.lower())
+    bert_response = create_response_model(bert_data[0][0:2], clients["{}_client".format(lang)], bert_data[1][0:2])
+
+
     # uncomment to read from static file
     # with open("data/sample_model_output.json", "r") as read_file:
     #     model_data = json.load(read_file)
     model_data = {"queryID": 111,
                   "model1": create_response_redisearch(query, clients["{}_client".format(lang)], 3),
                   "model2": run_lsi(query, lang, con),
-                  "model3": []}
+                  "model3": bert_response}
 
     print("The model data response is ", model_data)
     return model_data
@@ -223,7 +278,7 @@ def search_stack_overflow(query,lang='python'):
         # getting answers for the questions
         if len(question_ids) != 0:
             ans_data = requests.get(
-            'https://api.stackexchange.com/2.2/questions/{}/answers?pagesize={}&order=desc&sort=votes&site=stackoverflow&filter=!nL_HTxLa9u'.format(
+            'https://api.stackexchange.com/2.2/questions/{}/answers?pagesize={}&order=desc&sort=votes&site=stackoverflow'.format(
                 ';'.join(map(str, question_ids)), num * 5))
 
             # uncomment the below part to run in local without hitting API all the time
