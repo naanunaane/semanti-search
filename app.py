@@ -39,12 +39,6 @@ def create_response_model(ids, client, scores):
     - client: The RediSearch client object for that specific index
     - scores: List of scores of the corresponding id in `ids` list
     """
-    # The prefix used in IndexDefinition while creating the index
-    indexing = "doc"
-    indexing += '{0}'
-    # Adding the prefix to all the ids. Ex: [1,2] becomes ["doc:1", "doc:2"]
-    ids_pf = [indexing.format(i) for i in ids]
-    print("The ids to be queried for model are", ids_pf)
 
     # Initialising output array
     output = []
@@ -104,14 +98,15 @@ def run_lsi(query, lang, con):
     """
     # First, we vectorise the query string and then set the tensor in redisai
     query_vec = vectorisers["{}_vec".format(lang)].fit_transform(list(query))
-    print(query_vec.shape)
-    con.tensorset('query_vec', query_vec.todense().astype(np.float32), dtype='float32')
+    print(query_vec.getrow(0).todense())
+    con.tensorset('query_vec', query_vec.getrow(0).todense().astype(np.float32), dtype='float32')
     con.modelrun(key="{}_svd".format(lang), inputs=["query_vec"], outputs=["query_svd"])
     query_svd = con.tensorget(key="query_svd", as_numpy=True)
-    print(query_svd.shape)
     corpus_vec = con.tensorget(key="{}_vec".format(lang), as_numpy=True)
-    print(corpus_vec.shape)
+    print(corpus_vec[1:10])
+    print(query_svd)
     scores = cosine_similarity(corpus_vec, Y=query_svd, dense_output=True)
+    print("printing scores", scores)
     ids = np.argsort(scores).tolist()
     # print("From run_lsi, going to query for these ids", ids)
     response = create_response_model(ids[0:2], clients["{}_client".format(lang)], scores.tolist()[0:2])
@@ -190,7 +185,7 @@ def search_stack_overflow(query,lang='python'):
     query = request.args.get('query')
     # getting the response from the stackoverflow API
     num = 5
-    ques_data = requests.get('https://api.stackexchange.com/2.2/search/advanced?pagesize={}&order=desc&sort=relevance&q={}%20%{}&site=stackoverflow'.format(num, query, lang))
+    ques_data = requests.get('https://api.stackexchange.com/2.2/search/advanced?pagesize={}&order=desc&sort=relevance&q={}{}{}&site=stackoverflow'.format(num, query, " ",lang))
 
     # uncomment this to run in local without hitting API all the time
     # with open("data/sample-stackoverflow-query-response.json", "r") as read_file:
@@ -200,10 +195,10 @@ def search_stack_overflow(query,lang='python'):
     response = {'has_more': ques_data.json().get('has_more'), 'items': {}}  # added key telling whether there are more questions for query or not
     question_ids = []  # Empty list of question ids
 
-    print(ques_data.json().get('items'))
+    print("printing items of stackoverflow query", ques_data.json().get('items'))
 
     # looping through each question if response object actually has output
-    if len(ques_data.json().get('items')) == 0:
+    if len(ques_data.json().get('items')) != 0:
         for question in ques_data.json().get('items'):
             # getting required values related to the question
             question_details = {'creation_date': question.get("creation_date"),
@@ -238,8 +233,6 @@ def search_stack_overflow(query,lang='python'):
                                   'score': answer.get("score"),
                                   'answer_id': answer.get("answer_id")}
                 response['items'][answer.get("question_id")]['answers'].append(answer_details)
-
-    print("The stackoverflow response is ", response)
     return response
 
 

@@ -92,8 +92,8 @@ for lang in lang_list:
 # con.scriptset("lsi_scorer", "CPU", scorer_script)
 #
 # # Now we set the BERT model
-# model_file = '../data_&_models/bert_pretrained.pt'
-# with open(model_file, 'rb') as f:
-#     model = f.read()
-#
-# con.modelset('bert-qa', 'TORCH', 'CPU', model)
+model_file = '../data_&_models/bert_pretrained.pt'
+with open(model_file, 'rb') as f:
+    model = f.read()
+
+con.modelset('bert-qa', 'TORCH', 'CPU', model)
