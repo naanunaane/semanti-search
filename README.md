@@ -56,6 +56,10 @@ Docstrings of the functions are converted into vectors and used ffor approximate
 4. Redismod docker container
 
 ### Local setup
+
+### Docker image setup:
+the redislabs/redismod built from source resulted in errors while loading pytorch model, so the shared-object files from redislabs/redisai image are copied to the redismod container in the corresponding library location (/usr/lib/redis/modules/backends/redisai_torch/lib)
+`
 #### Setup redis docker container locally:
 1. After making sure that you have docker container running
 
