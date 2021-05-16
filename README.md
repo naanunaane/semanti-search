@@ -3,6 +3,8 @@ A Flask web application built to utilise the power of Semantic Search to help de
 
 Engineers work best when they can easily find code examples to guide them on particular coding tasks. For some questions — for example, “How to programmatically close or hide the Android soft keyboard?” — information is readily available from popular resources like Stack Overflow. 
 
+It also becomes imperative to consider the fact that different people do things differently when given an objective and just considering the code string was not going to be enough. We had to consider the documentation added for the function modules to better grasp the semantic meaning of that piece of code.
+
 However, things become difficult when the developers have to find ways to access/search for design patterns or code modules already implemented in the company's proprietary code [[1]](https://ai.facebook.com/blog/neural-code-search-ml-based-code-search-using-natural-language-queries/). 
 
 For this reason, we decided to develop a way for people to access solutions by harnessing the power of the web as well as the proprietary code base using their own natural queries. To implement this, we had to go beyond basic document searches that the code bases like Github and Gitlab provide to us with regex search and keyword search. The search with the natural langauge had to encode the semantic meaning of the query and try to find code documents that were semantically similar to what the user wanted. 
