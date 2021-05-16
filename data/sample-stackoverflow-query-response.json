@@ -1,6 +1,101 @@
 {
     "has_more": true,
-    "items": [],
+    "items": [
+        {
+            "accepted_answer_id": 14220323,
+            "answer_count": 42,
+            "body": "<p>I have a function <code>foo</code> which makes an asynchronous request. How can I return the response/result from <code>foo</code>?</p>\n<p>I tried returning the value from the callback, as well as assigning the result to a local variable inside the function and returning that one, but none of those ways actually return the response (they all return <code>undefined</code> or whatever the initial value of the variable <code>result</code> is).</p>\n<p><strong>Example using jQuery's <code>ajax</code> function:</strong></p>\n<pre><code>function foo() {\n    var result;\n\n    $.ajax({\n        url: '...',\n        success: function(response) {\n            result = response;\n            // return response; // &lt;- I tried that one as well\n        }\n    });\n\n    return result; // It always returns `undefined`\n}\n</code></pre>\n<p><strong>Example using node.js:</strong></p>\n<pre><code>function foo() {\n    var result;\n\n    fs.readFile(&quot;path/to/file&quot;, function(err, data) {\n        result = data;\n        // return data; // &lt;- I tried that one as well\n    });\n\n    return result; // It always returns `undefined`\n}\n</code></pre>\n<p><strong>Example using the <code>then</code> block of a promise:</strong></p>\n<pre><code>function foo() {\n    var result;\n\n    fetch(url).then(function(response) {\n        result = response;\n        // return response; // &lt;- I tried that one as well\n    });\n\n    return result; // It always returns `undefined`\n}\n</code></pre>\n",
+            "content_license": "CC BY-SA 4.0",
+            "creation_date": 1357664774,
+            "is_answered": true,
+            "last_activity_date": 1619009209,
+            "last_edit_date": 1599782613,
+            "link": "https://stackoverflow.com/questions/14220321/how-do-i-return-the-response-from-an-asynchronous-call",
+            "owner": {
+                "accept_rate": 100,
+                "display_name": "Felix Kling",
+                "link": "https://stackoverflow.com/users/218196/felix-kling",
+                "profile_image": "https://i.stack.imgur.com/4P5DY.jpg?s=128&g=1",
+                "reputation": 700574,
+                "user_id": 218196,
+                "user_type": "registered"
+            },
+            "protected_date": 1554698603,
+            "question_id": 14220321,
+            "score": 5926,
+            "tags": [
+                "javascript",
+                "jquery",
+                "ajax",
+                "asynchronous"
+            ],
+            "title": "How do I return the response from an asynchronous call?",
+            "view_count": 1671645
+        },
+        {
+            "accepted_answer_id": 26853961,
+            "answer_count": 49,
+            "body": "<p>I have two Python dictionaries, and I want to write a single expression that returns these two dictionaries, merged (i.e. taking the union).  The <code>update()</code> method would be what I need, if it returned its result instead of modifying a dictionary in-place.</p>\n<pre><code>&gt;&gt;&gt; x = {'a': 1, 'b': 2}\n&gt;&gt;&gt; y = {'b': 10, 'c': 11}\n&gt;&gt;&gt; z = x.update(y)\n&gt;&gt;&gt; print(z)\nNone\n&gt;&gt;&gt; x\n{'a': 1, 'b': 10, 'c': 11}\n</code></pre>\n<p>How can I get that final merged dictionary in <code>z</code>, not <code>x</code>?</p>\n<p>(To be extra-clear, the last-one-wins conflict-handling of <code>dict.update()</code> is what I'm looking for as well.)</p>\n",
+            "content_license": "CC BY-SA 4.0",
+            "creation_date": 1220341470,
+            "is_answered": true,
+            "last_activity_date": 1619726321,
+            "last_edit_date": 1614329354,
+            "link": "https://stackoverflow.com/questions/38987/how-do-i-merge-two-dictionaries-in-a-single-expression-taking-union-of-dictiona",
+            "owner": {
+                "accept_rate": 100,
+                "display_name": "Carl Meyer",
+                "link": "https://stackoverflow.com/users/3207/carl-meyer",
+                "profile_image": "https://www.gravatar.com/avatar/b1f36e554be0e1ae19f9a74d6ece9107?s=128&d=identicon&r=PG",
+                "reputation": 104566,
+                "user_id": 3207,
+                "user_type": "registered"
+            },
+            "protected_date": 1392127410,
+            "question_id": 38987,
+            "score": 5594,
+            "tags": [
+                "python",
+                "dictionary",
+                "merge"
+            ],
+            "title": "How do I merge two dictionaries in a single expression (taking union of dictionaries)?",
+            "view_count": 2250784
+        },
+        {
+            "accepted_answer_id": 2711073,
+            "answer_count": 9,
+            "body": "<p>I've always thought of the <code>if not x is None</code> version to be more clear, but Google's <a href=\"https://google.github.io/styleguide/pyguide.html?showone=True/False_evaluations#True/False_evaluations\" rel=\"noreferrer\">style guide</a> and <a href=\"https://www.python.org/dev/peps/pep-0008/#programming-recommendations\" rel=\"noreferrer\">PEP-8</a> both use <code>if x is not None</code>. Is there any minor performance difference (I'm assuming not), and is there any case where one really doesn't fit (making the other a clear winner for my convention)?*</p>\n\n<p>*I'm referring to any singleton, rather than just <code>None</code>.</p>\n\n<blockquote>\n  <p>...to compare singletons like\n  None. Use is  or is not.</p>\n</blockquote>\n",
+            "closed_date": 1604103496,
+            "closed_reason": "Needs details or clarity",
+            "creation_date": 1272251430,
+            "is_answered": true,
+            "last_activity_date": 1604050175,
+            "last_edit_date": 1593800613,
+            "link": "https://stackoverflow.com/questions/2710940/python-if-x-is-not-none-or-if-not-x-is-none",
+            "owner": {
+                "accept_rate": 99,
+                "display_name": "orokusaki",
+                "link": "https://stackoverflow.com/users/128463/orokusaki",
+                "profile_image": "https://i.stack.imgur.com/8gVix.jpg?s=128&g=1",
+                "reputation": 48039,
+                "user_id": 128463,
+                "user_type": "registered"
+            },
+            "protected_date": 1547141951,
+            "question_id": 2710940,
+            "score": 830,
+            "tags": [
+                "python",
+                "coding-style",
+                "nonetype",
+                "boolean-expression",
+                "pep8"
+            ],
+            "title": "Python `if x is not None` or `if not x is None`?",
+            "view_count": 967355
+        }
+    ],
     "quota_max": 300,
     "quota_remaining": 299
 }

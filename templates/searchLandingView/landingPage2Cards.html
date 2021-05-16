@@ -6,7 +6,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.61.0/mode/python/python.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.61.0/addon/scroll/simplescrollbars.min.css"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.61.0/addon/scroll/simplescrollbars.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.min.js" integrity="sha512-8qx1DL/2Wsrrij2TWX5UzvEaYOFVndR7BogdpOyF4ocMfnfkw28qt8ULkXD9Tef0bLvh3TpnSAljDC7uyniEuQ==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-beautify.min.js" integrity="sha512-QfDSPBb1bUxUj/XQP0UNmQLsHy5LMKOzk9IAuUYGJebOFrfYi5csZsrUaPbgrsppiKY3kPv+zGe/kaS6yUcmHg==" crossorigin="anonymous"></script>
 
 
 
@@ -30,9 +32,11 @@
     var chosenModelID = 0
     var numberOfModels = 1
     var numberOfCards = 0
+    var isMinimized = false
 
     function enableSemantics(){
-        this.semanticsNeeded = true;
+        // if(this.semanticsNeeded == false){}
+        this.semanticsNeeded = !this.semanticsNeeded;
     }
 
     function setLanguage(lang)
@@ -41,15 +45,15 @@
         editableImgLoc = document.getElementsByClassName('ChosenLanguageFilterLogo')[0]
         document.getElementsByClassName('LanguageFilterLogo')[0].style.marginTop='3%'
         document.getElementsByClassName('dropbtn')[0].innerHTML = "Language Filter :"
-        if(lang == 'Python'){
+        if(lang == 'python'){
             editableImgLoc.setAttribute('src', this.pythonImgSrc)
             editableImgLoc.classList.remove('Go')
         }
-        else if(lang == 'Javascript'){
+        else if(lang == 'javascript'){
             editableImgLoc.setAttribute('src', this.JavaScriptImgSrc)
             editableImgLoc.classList.remove('Go')
         }
-        else if(lang == 'Go'){
+        else if(lang == 'go'){
             editableImgLoc.setAttribute('src', this.GoImgSrc)
             editableImgLoc.classList.toggle('Go')
         }
@@ -59,6 +63,7 @@
 
     function search(){
 
+        window.history.pushState({} , "", "?querystring=" + query.value+'&lang='+this.chosenLanguage+'&semantics='+this.semanticsNeeded);
 
         var alpIndexer = ['one', 'two', 'three', 'four', 'five'];
         var searchUrl = 'http://localhost:5000/search/'+query.value+'/';
@@ -68,6 +73,8 @@
           console.log(data);
           console.log(query.value + this.chosenLanguage)
           questionIds = Object.keys(data.items)
+
+        //   window.location="http://localhost:5000/search/?querystring="+query.value+'&lang='+this.chosenLanguage+'&semantics='+this.semanticsNeeded;
 
           if(questionIds.length > 6){
               this.numberOfCards = this.maxNumberOfCards
@@ -194,6 +201,8 @@
               if("accepted_id" in data.items[q]){
                 document.getElementsByClassName('stackOverFlow acceptedAnswer '+ alpIndexer[i])[0].style.display = 'block'
               }
+
+
 
               getAnswers(q, i, data.items[q].answers)
     
@@ -341,6 +350,10 @@
             document.getElementById('stackOverFlowCard'+String(index+1)).appendChild(navigationComponent)
 
         console.log('I am')
+
+        if(this.isMinimized){
+                  minimizeStackOverFlow()
+              }
     
     }
 
@@ -361,7 +374,7 @@
 
             this.numberOfModels = this.listOfModels.length
 
-            if (this.numberOfModels > 0){
+            if (this.numberOfModels > 0 && document.getElementsByClassName('nothingHereScreenParent Github').length != 0){
                 document.getElementsByClassName('nothingHereScreenParent Github')[0].style.display= 'none'
             }
 
@@ -516,28 +529,62 @@
 
                 modelOutputParent.insertBefore(modelOutputouterBodyCard, modelOutputParent.firstChild)
 
-                getCodeEditor(model, codeowner, coderepo, filepath, fromline, toline)
+                getCodeEditor(model, codeowner, coderepo, filepath, fromline, toline, this.chosenLanguage, data[modelName][0].codeString)
 
         }
     }
 
-    function getCodeEditor(index, codeowner, coderepo, filepath, fromline, toline)
+    function getCodeEditor(index, codeowner, coderepo, filepath, fromline, toline, language, codeString)
     {
+
+        // var beautify = ace.require("ace/ext/beautify");
+
+        // var sample = document.getElementById('codeMiniPreview ' +index)    
+        // // pass options to ace.edit
+        //     editor = ace.edit(sample, {
+        //         mode: "ace/mode/python",
+        //         selectionStyle: "text",
+        //         readOnly: true
+        //     })
+        //     // use setOptions method to set several options at once
+        //     editor.setOptions({
+        //         autoScrollEditorIntoView: true,
+        //         copyWithEmptySelection: true,
+        //         enableBasicAutocompletion: true
+        //     });
+
+        //     editor.setValue(codeString)
+
+        //     beautify.beautify(editor.session);
+
+            
+
+    
+        // var sample = document.getElementById('codeMiniPreview ' +index);
+        //             // console.log(githubdata['content'])
+        //             var myCodeMirror = CodeMirror(sample, {
+        //             value: codeString,
+        //             mode:  language,
+        //             readOnly: "true",
+        //             lineNumbers: "true",
+        //             scrollbarStyle: "simple",
+        //             });
+
         fetch('https://api.github.com/repos/'+codeowner+'/'+coderepo+'/contents/'+filepath)
                 .then(function(response) {
-                    return response.json();
+                    return response.json(); 
                 }).then(function(githubdata) {
                     var sample = document.getElementById('codeMiniPreview ' +index);
                     // console.log(githubdata['content'])
                     var myCodeMirror = CodeMirror(sample, {
                     value: atob(githubdata['content']),
-                    mode:  "python",
+                    mode:  language,
                     readOnly: "true",
                     lineNumbers: "true",
                     scrollbarStyle: "simple",
                     });
 
-                    defaultFocus = myCodeMirror.heightAtLine(Number(fromline)-2, mode='python')
+                    defaultFocus = myCodeMirror.heightAtLine(Number(fromline)-2, mode=language)
                     myCodeMirror.setSelection({line: Number(fromline)-1, ch: 0}, {line: Number(toline)+1, ch:0}, {scroll:false})
                     myCodeMirror.scrollTo(0,defaultFocus)
  
@@ -751,7 +798,8 @@
 
 
     function minimizeStackOverFlow(){
-        if (!document.getElementsByClassName('stackOverFlowParent')[0].classList.contains('minimized')){
+        this.isMinimized = true
+        // if (!document.getElementsByClassName('stackOverFlowParent')[0].classList.contains('minimized')){
 
             this.movingFactor = 3
 
@@ -786,11 +834,11 @@
         document.getElementsByClassName('modelOutputParent')[0].style.height = "63%"
 
         if(this.numberOfCards < 4 && this.firstDisplayCardID == 1){
-            document.getElementsByClassName('nextStackOverflowCardFloater')[0].classList.toggle('invisible')
+            document.getElementsByClassName('nextStackOverflowCardFloater')[0].classList.add('invisible')
         }
 
-        document.getElementsByClassName('nextStackOverflowCardFloater')[0].classList.toggle('minimized')
-        document.getElementsByClassName('previousStackOverflowCardFloater')[0].classList.toggle('minimized')
+        document.getElementsByClassName('nextStackOverflowCardFloater')[0].classList.add('minimized')
+        document.getElementsByClassName('previousStackOverflowCardFloater')[0].classList.add('minimized')
 
         if(document.getElementsByClassName('stackOverFlowCard Card '+ (this.firstDisplayCardID+2)).length != 0){
             document.getElementsByClassName('stackOverFlowCard Card '+ (this.firstDisplayCardID+2) )[0].style.display= 'block';
@@ -818,7 +866,7 @@
     }
 
 
-    }
+    // }
 
     function maximizeStackOverFlow(dblclickedElement){
         if (document.getElementsByClassName('stackOverFlowParent')[0].classList.contains('minimized')){
@@ -2114,17 +2162,17 @@ input:checked + .slider .off
                         </button>
                           
                         <div class="dropdown-content">
-                            <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-bottom: 0%;" onclick="setLanguage('Python')">
+                            <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-bottom: 0%;" onclick="setLanguage('python')">
                                 <img class="languageSelectorLogo Option Python" src="https://banner2.cleanpng.com/20180506/ile/kisspng-python-programming-language-computer-programming-5aefaba25ef4a4.302516281525656482389.jpg">
                                 <div class="languageSelectorText Option Python Text">Python</div>
                             </div>
               
-                            <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%;" onclick="setLanguage('Javascript')">
+                            <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%;" onclick="setLanguage('javascript')">
                                 <img class="languageSelectorLogo Option Javascript" src="https://mpng.subpng.com/20190627/ttx/kisspng-javascript-computer-icons-scalable-vector-graphics-list-of-javascript-enhancements-fandom-developers-5d145895b06253.7824611015616144857225.jpg">
                                 <div class="languageSelectorText Option Javascript Text">Javascript</div>
                             </div>
     
-                            <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%; height: 35;" onclick="setLanguage('Go')">
+                            <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%; height: 35;" onclick="setLanguage('go')">
                                 <img class="languageSelectorLogo Option Go" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1200px-Go_Logo_Blue.svg.png">
                                 <div class="languageSelectorText Option Go Text">Go</div>
                             </div>                            

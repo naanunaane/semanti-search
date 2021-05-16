@@ -39,15 +39,15 @@
         editableImgLoc = document.getElementsByClassName('ChosenLanguageFilterLogo')[0]
         document.getElementsByClassName('LanguageFilterLogo')[0].style.marginTop='3%'
         document.getElementsByClassName('dropbtn')[0].innerHTML = "Language Filter :"
-        if(lang == 'Python'){
+        if(lang == 'python'){
             editableImgLoc.setAttribute('src', this.pythonImgSrc)
             editableImgLoc.classList.remove('Go')
         }
-        else if(lang == 'Javascript'){
+        else if(lang == 'javascript'){
             editableImgLoc.setAttribute('src', this.JavaScriptImgSrc)
             editableImgLoc.classList.remove('Go')
         }
-        else if(lang == 'Go'){
+        else if(lang == 'go'){
             editableImgLoc.setAttribute('src', this.GoImgSrc)
             editableImgLoc.classList.toggle('Go')
         }
@@ -1224,17 +1224,17 @@ input:checked + .slider .off
                     </button>
                       
                     <div class="dropdown-content">
-                        <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-bottom: 0%;" onclick="setLanguage('Python')">
+                        <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-bottom: 0%;" onclick="setLanguage('python')">
                             <img class="languageSelectorLogo Option Python" src="https://banner2.cleanpng.com/20180506/ile/kisspng-python-programming-language-computer-programming-5aefaba25ef4a4.302516281525656482389.jpg">
                             <div class="languageSelectorText Option Python Text">Python</div>
                         </div>
           
-                        <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%;" onclick="setLanguage('Javascript')">
+                        <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%;" onclick="setLanguage('javascript')">
                             <img class="languageSelectorLogo Option Javascript" src="https://mpng.subpng.com/20190627/ttx/kisspng-javascript-computer-icons-scalable-vector-graphics-list-of-javascript-enhancements-fandom-developers-5d145895b06253.7824611015616144857225.jpg">
                             <div class="languageSelectorText Option Javascript Text">Javascript</div>
                         </div>
 
-                        <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%; height: 35;" onclick="setLanguage('Go')">
+                        <div style="display: flex; flex-direction: row; position: relative; padding: 5%; padding-top: 0%; height: 35;" onclick="setLanguage('go')">
                             <img class="languageSelectorLogo Option Go" src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Go_Logo_Blue.svg/1200px-Go_Logo_Blue.svg.png">
                             <div class="languageSelectorText Option Go Text">Go</div>
                         </div>                            

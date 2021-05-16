@@ -1,21 +1,54 @@
 {
-  "queryID": 15678999890, 
-  "model1" : [],
-  "model2" : [],
-  "model3" : [
-    {
-     "id": 1234, 
-     "codelink": "https://github.com/rosenbrockc/acorn/blob/9a44d1a1ad8bfc2c54a6b56d9efe54433a797820/acorn/ipython.py#L201-L256",
-     "funcName": "ScalableBloomFilter.fromfile",
-     "docString": "Serialize this ScalableBloomFilter into the file - object f",
-     "score": 2288.97
-    },
-   {
-     "id": 1235,
-     "codelink": "https://github.com/EmbodiedCognition/py-c3d/blob/391493d9cb4c6b4aaeee4de2930685e3a67f5845/c3d.py#L962-L989",
-     "funcName": "Writer._write_frames",
-     "docString": "Write metadata to a file handle",
-     "score": 78.10
-    }
-]
+	"queryID": 15678999890,
+	"model1": [{
+			"id": 1234,
+			"codelink": "https://github.com/rosenbrockc/acorn/blob/9a44d1a1ad8bfc2c54a6b56d9efe54433a797820/acorn/ipython.py#L201-L256",
+			"funcName": "ScalableBloomFilter.fromfile",
+	        "docString": "Serialize this ScalableBloomFilter into the file - object f",
+			"codeString": "def save_template ( self , template , project , template_id ) : route_values = { } if project is not None : route_values [ 'project' ] = self . _serialize . url ( 'project' , project , 'str' ) if template_id is not None : route_values [ 'templateId' ] = self . _serialize . url ( 'template_id' , template_id , 'str' ) content = self . _serialize . body ( template , 'BuildDefinitionTemplate' ) response = self . _send ( http_method = 'PUT' , location_id = 'e884571e-7f92-4d6a-9274-3f5649900835' , version = '5.0' , route_values = route_values , content = content ) return self . _deserialize ( 'BuildDefinitionTemplate' , response )",
+			"score": 88.97
+		},
+		{
+			"id": 1235,
+			"codelink": "https://github.com/spacemonkeygo/openssl/blob/c2dcc5cca94ac8f7f3f0c20e20050d4cce9d9730/cert.go#L367-L377",
+			"funcName": "MarshalPEM",
+		    "docString": "Serialize this ScalableBloomFilter into the file - object f",
+			"codeString": "func ( c * Certificate ) MarshalPEM ( ) ( pem_block [ ] byte , err error ) { bio := C . BIO_new ( C . BIO_s_mem ( ) )   if bio == nil { return nil , errors . New (   )   }   defer C . BIO_free ( bio )   if int ( C . PEM_write_bio_X509 ( bio , c . x ) ) != 1 { return nil , errors . New (   )   }   return ioutil . ReadAll ( asAnyBio ( bio ) )   }",
+			"score": 78.10
+		}
+	],
+	"model2": [{
+			"id": 1234,
+			"codelink": "https://github.com/JedWatson/react-tappable/blob/c7a05f03f354c7556a413a6d270544629fd50ab7/dist/react-tappable.js#L6713-L67226",
+			"funcName": "trapCapturedEvent",
+	        "docString": "Serialize this ScalableBloomFilter into the file - object f",
+			"codeString": "function trapCapturedEvent ( topLevelType , handlerBaseName , element ) { if ( ! element ) { return null ; } var dispatch = isInteractiveTopLevelEventType ( topLevelType ) ? dispatchInteractiveEvent : dispatchEvent ; addEventCaptureListener ( element , handlerBaseName , // Check if interactive and wrap in interactiveUpdates dispatch . bind ( null , topLevelType ) ) ; }",
+			"score": 88.97
+		},
+		{
+			"id": 1235,
+			"codelink": "https://github.com/spotbugs/spotbugs/blob/f6365c6eea6515035bded38efa4a7c8b46ccf28c/spotbugs/src/main/java/edu/umd/cs/findbugs/ba/ch/Subtypes2.java#L508-L523",
+			"funcName": "Subtypes2.isSubtype",
+			"codeString": "public boolean isSubtype ( ObjectType type , ObjectType possibleSupertype ) throws ClassNotFoundException { if ( DEBUG_QUERIES ) { System . out . println ( isSubtype: check  + type +  subtype of  + possibleSupertype ) ; } if ( type . equals ( possibleSupertype ) ) { if ( DEBUG_QUERIES ) { System . out . println (   ==> yes, types are same ) ; } return true ; } ClassDescriptor typeClassDescriptor = DescriptorFactory . getClassDescriptor ( type ) ; ClassDescriptor possibleSuperclassClassDescriptor = DescriptorFactory . getClassDescriptor ( possibleSupertype ) ; return isSubtype ( typeClassDescriptor , possibleSuperclassClassDescriptor ) ; }",
+			"docString": "Serialize this ScalableBloomFilter into the file - object f",
+		    "score": 78.10
+		}
+	],
+	"model3": [{
+			"id": 1234,
+			"codelink": "https://github.com/rosenbrockc/acorn/blob/9a44d1a1ad8bfc2c54a6b56d9efe54433a797820/acorn/ipython.py#L201-L256",
+			"funcName": "ScalableBloomFilter.fromfile",
+	  		"codeString": "public boolean isSubtype ( ObjectType type , ObjectType possibleSupertype ) throws ClassNotFoundException { if ( DEBUG_QUERIES ) { System . out . println ( isSubtype: check  + type +  subtype of  + possibleSupertype ) ; } if ( type . equals ( possibleSupertype ) ) { if ( DEBUG_QUERIES ) { System . out . println (   ==> yes, types are same ) ; } return true ; } ClassDescriptor typeClassDescriptor = DescriptorFactory . getClassDescriptor ( type ) ; ClassDescriptor possibleSuperclassClassDescriptor = DescriptorFactory . getClassDescriptor ( possibleSupertype ) ; return isSubtype ( typeClassDescriptor , possibleSuperclassClassDescriptor ) ; }",
+			"docString": "Serialize this ScalableBloomFilter into the file - object f",
+			"score": 88.97
+		},
+		{
+			"id": 1235,
+			"codelink": "https://github.com/EmbodiedCognition/py-c3d/blob/391493d9cb4c6b4aaeee4de2930685e3a67f5845/c3d.py#L962-L989",
+			"funcName": "Writer._write_frames",
+			"codeString": "public boolean isSubtype ( ObjectType type , ObjectType possibleSupertype ) throws ClassNotFoundException { if ( DEBUG_QUERIES ) { System . out . println ( isSubtype: check  + type +  subtype of  + possibleSupertype ) ; } if ( type . equals ( possibleSupertype ) ) { if ( DEBUG_QUERIES ) { System . out . println (   ==> yes, types are same ) ; } return true ; } ClassDescriptor typeClassDescriptor = DescriptorFactory . getClassDescriptor ( type ) ; ClassDescriptor possibleSuperclassClassDescriptor = DescriptorFactory . getClassDescriptor ( possibleSupertype ) ; return isSubtype ( typeClassDescriptor , possibleSuperclassClassDescriptor ) ; }",
+			"docString": "Serialize this ScalableBloomFilter into the file - object f",
+			"score": 78.10
+		}
+	]
 }
