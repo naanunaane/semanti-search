@@ -11,13 +11,13 @@
     "quick_deploy": "",
     "deploy_buttons": [],
     "language": ["Python", "Flask", "RedisAI", "RediSearch"],
-    "redis_commands": ["MODELRUN","TENSORSET","TENSORGET","MODELSET","MODELGET"], // Enter all the Redis commands
+    "redis_commands": ["MODELRUN","TENSORSET","TENSORGET","MODELSET","MODELGET"],
     "redis_features": ["model-serving", "secondary-indexing"],
     "redis_modules": ["RediSearch", "RedisAI"],
     "app_image_urls": [
     "https://github.com/naanunaane/semanti-search/blob/main/resources/full-logo-no-bg.png"],
-    "youtube_url": "", //Provide a Youtube link to your app's video
+    "youtube_url": "https://youtu.be/AMfPUamwWzM",
     "special_tags": ["Hackathon"],
-    "verticals": ["Technology"], // Can be: "Healthcare", "Financial", "Tourism", "Retail", "Oil & Gas", "Manufacturing", "Technology","Education", "Construction"
+    "verticals": ["Technology"],
     "markdown": "https://raw.githubusercontent.com/naanunaane/semanti-search/main/README.md"
 }
