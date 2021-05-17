@@ -36,44 +36,12 @@ Docstrings of the functions are converted into vectors and used ffor approximate
 1. Ubuntu 18.04 system
 2. Docker
 3. Python 3.x
-4. Redismod docker container
-
-### Local setup
+4. Redisai docker container
+5. Redis cloud database
+### setup
 
 ### Docker image setup:
-the redislabs/redismod built from source resulted in errors while loading pytorch model, so the shared-object files from redislabs/redisai image are copied to the redismod container in the corresponding library location (/usr/lib/redis/modules/backends/redisai_torch/lib)
-`
-#### Setup redis docker container locally:
-1. After making sure that you have docker container running
+Run the docker-image for redisai exposing the 6379 port 
 
-`docker run \
- -p 6379:6379 \
- -v /home/user/data-redis:/data \
- -v /home/user/redis.conf:/usr/local/etc/redis/redis.conf \
- redislabs/redismod`
-
-#### Writing data to RediSearch and RedisAI:
-1. Go inside the scripts directory from the current directory of this project
-
-`cd scripts`
-   
-2. Run python script to install required dependencies
-
-`python3 set_data_on_redis.py`
-
-#### [Optional] If you want to add your own data, and models
-1. Create a new directory for your language
-
-`mkdir data_&_models/new_lang`
-
-2. Add your data as a csv in the directory. To be able to run the script smoothly, follow this naming convention. 
-
-2.1. CSV name of corpus: train_{}_small.csv       (replace {} with language)
-
-2.2. CSV name of vectors: train_{}_matrix_{}.csv  ({} with language, number of rows)
-
-3. Run script to get vectors and models
-
-`cd scripts`
-
-`python3 create_LSA_vectors_&_models.py`
+#### Database setup:
+Code-docstring pairs are saved in a csv formate as shown in example port, these are added to redis-cloud database as shown in the set_model.py script
