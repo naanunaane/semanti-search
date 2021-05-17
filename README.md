@@ -94,3 +94,8 @@ the redislabs/redismod built from source resulted in errors while loading pytorc
 `cd scripts`
 
 `python3 create_LSA_vectors_&_models.py`
+
+### Screenshots
+![Landing page](https://github.com/naanunaane/semanti-search/blob/4fdee1a59f80834c79aa2a6e4f1e8a392d97cf83/ss1.png "Landing page")
+![Search Results](https://github.com/naanunaane/semanti-search/blob/4fdee1a59f80834c79aa2a6e4f1e8a392d97cf83/ss2.jpeg "Search Results")
+
