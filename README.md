@@ -11,7 +11,7 @@ For this reason, we decided to develop a way for people to access solutions by h
 
 ## Architecture of Semanti-Search
 
-![Architecture Diagram](https://github.com/naanunaane/semanti-search/raw/4b3abfe2bc6749cdda4bb2a7e38b154045e8deca/resources/Arch_Diagram_v1.1.png "Architecture Diagram")
+![Architecture Diagram]https://github.com/naanunaane/semanti-search/blob/main/code_search_architecture.png "Architecture Diagram")
 
 
 ## Methods:
