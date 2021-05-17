@@ -11,9 +11,9 @@
     "quick_deploy": "",
     "deploy_buttons": [],
     "language": ["Python", "Flask", "RedisAI", "RediSearch"],
-    "redis_commands": ["MODELRUN","TENSORSET","TENSORGET","MODELSET","MODELGET"],
+    "redis_commands": ["MODELRUN","MODELSET","MODELGET"],
     "redis_features": ["model-serving", "secondary-indexing"],
-    "redis_modules": ["RediSearch", "RedisAI"],
+    "redis_modules": ["Redi cloud database", "RedisAI"],
     "app_image_urls": [
     "https://github.com/naanunaane/semanti-search/blob/main/resources/full-logo-no-bg.png"],
     "youtube_url": "https://youtu.be/AMfPUamwWzM",
